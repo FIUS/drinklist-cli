@@ -1,61 +1,45 @@
+#!/usr/bin/env python3
 import requests
 import json
 import getpass
-import os.path
 import pathlib
-
-config = {}
-config_file = pathlib.Path("~/.drinklist").expanduser()
-
-def read_config(config_file):
-    global config
-    if config_file.exists():
-        with config_file.open() as f:
-            config = json.load(f)
-def write_config(config_file):
-    global config
-    with config_file.open(mode='w') as f:
-        json.dump(config, f)
-
-api_url = "https://fius.informatik.uni-stuttgart.de/drinklist/api"
+import config
 
 def get_login_token(api_url, password):
-    r = requests.post(api_url + "/login", data = {'password' : password})
-    j = json.loads(r.text)
-    return j[u'token']
+    global cfg
+    response = requests.post(api_url + "/login", data = {'password' : password})
+    json_result = json.loads(response.text)
+    return json_result[u'token']
 
-read_config(config_file)
+cfg = config.Config(pathlib.Path("~/.drinklist").expanduser())
+api_url = "https://fius.informatik.uni-stuttgart.de/drinklist/api"
 
-def init_config_value(key, initializer):
-    global config
-    if not key in config:
-        config[key] = initializer()
-        write_config(config_file)
-
-init_config_value('url', lambda: "https://fius.informatik.uni-stuttgart.de/drinklist/api")
-init_config_value('pw', lambda: getpass.getpass())
-init_config_value('token', lambda: get_login_token(api_url,config['pw']))
-init_config_value('user', lambda: raw_input("Username: "))
+cfg.init_value('url', lambda: "https://fius.informatik.uni-stuttgart.de/drinklist/api")
+cfg.init_value('pw', lambda: getpass.getpass())
+cfg.init_value('token', lambda: get_login_token(api_url, cfg['pw']))
+cfg.init_value('user', lambda: input("Username: "))
 
 def list_beverages():
-    r = requests.get(api_url + "/beverages", headers={'X-Auth-Token' : config['token']})
+    global cfg
+    r = requests.get(api_url + "/beverages", headers={'X-Auth-Token' : cfg['token']})
     j = json.loads(r.text)
     for drink in j:
         print(u"{}\t{}".format(drink["name"], drink["price"]))
+
 def order_drink(drink):
+    global cfg
     r = requests.post(api_url + "/orders",
-                      headers={'X-Auth-Token': config['token']},
-                      params={'user': config['user'], 'beverage': drink})
+                      headers={'X-Auth-Token': cfg['token']},
+                      params={'user': cfg['user'], 'beverage': drink})
     print(r.text)
-    print(config['user'])
-    print(drink)
 
-import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument('-d', dest='drink', type=str)
-args = parser.parse_args()
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', dest='drink', type=str)
+    args = parser.parse_args()
 
-if args.drink is None:
-    list_beverages()
-else:
-    order_drink(args.drink)
+    if args.drink is None:
+        list_beverages()
+    else:
+        order_drink(args.drink)
