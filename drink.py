@@ -39,10 +39,21 @@ def order_drink(drink):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', dest='drink', type=str)
+    commands = parser.add_subparsers(title='commands',
+                                     metavar='command',
+                                     dest='command',
+                                     description='The command to run')
+    commands.add_parser('list', help='List all available beverages.')
+
+    drink_parser = commands.add_parser('drink', help='Order a drink.')
+    drink_parser.add_argument('drink', type=str, help='The drink to order')
+
+    commands.add_parser('help', help='Show this help.')
     args = parser.parse_args()
 
-    if args.drink is None:
+    if args.command in [None, 'help']:
+        parser.print_help()
+    elif args.command == 'list':
         list_beverages()
-    else:
+    elif args.command == 'drink':
         order_drink(args.drink)
