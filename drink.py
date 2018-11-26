@@ -18,10 +18,13 @@ cfg.init_value('pw', lambda: getpass.getpass())
 cfg.init_value('token', lambda: get_login_token(cfg["url"], cfg['pw']))
 cfg.init_value('user', lambda: input("Username: "))
 
-def list_beverages():
+def get_beverages():
     global cfg
     r = requests.get(cfg["url"] + "/beverages", headers={'X-Auth-Token' : cfg['token']})
-    j = json.loads(r.text)
+    return json.loads(r)
+
+def list_beverages():
+    j = get_beverages()
     column_width = max(len(drink["name"]) for drink in j) + 2
     for drink in j:
         print(u"{} {}".format(drink["name"].ljust(column_width), "{0:.2f} €".format(drink["price"]/100.0)))
