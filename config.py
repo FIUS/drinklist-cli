@@ -28,10 +28,14 @@ class Config(object):
                                     'initializer': initializer}
 
     def add_args(self, parser):
+        parser.add_argument('-config', dest='config_path', type=str, help='The config file')
         for cp in self.config_params.values():
             parser.add_argument(cp['parameter'], dest=cp['name'], type=cp['type'], help=cp['help'])
 
     def parse_args(self, args):
+        if 'config_path' in args.__dict__ and args.__dict__['config_path'] is not None:
+            self.config_path = pathlib.Path(args.__dict__['config_path']).expanduser()
+            self.read_config()
         for cp in self.config_params.values():
             if cp['name'] in args.__dict__ and args.__dict__[cp['name']] is not None:
                 self.tmp_config[cp['name']] = args.__dict__[cp['name']]
