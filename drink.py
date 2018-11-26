@@ -4,6 +4,7 @@ import json
 import getpass
 import pathlib
 import config
+from ppformat import pp
 
 def get_login_token(api_url, password):
     global cfg
@@ -28,12 +29,6 @@ def get_beverages():
 def get_users():
     return get("/users")
 
-def list_beverages():
-    j = get_beverages()
-    column_width = max(len(drink["name"]) for drink in j) + 2
-    for drink in j:
-        print(u"{} {}".format(drink["name"].ljust(column_width), "{0:.2f} €".format(drink["price"]/100.0)))
-
 def order_drink(drink):
     global cfg
     r = requests.post(cfg["url"] + "/orders",
@@ -44,6 +39,7 @@ def order_drink(drink):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
+    parser.add_argument('-format', choices=['text', 'json'], help='Output format')
     commands = parser.add_subparsers(title='commands',
                                      metavar='command',
                                      dest='command',
@@ -53,14 +49,22 @@ if __name__ == '__main__':
     drink_parser = commands.add_parser('drink', help='Order a drink.')
     drink_parser.add_argument('drink', type=str, help='The drink to order')
 
-
+    commands.add_parser('users', help='List all registered users.')
 
     commands.add_parser('help', help='Show this help.')
     args = parser.parse_args()
 
+    formatter = None
+    if args.format == 'json':
+        formatter = lambda x: print(json.dumps(x))
+    else:
+        formatter = lambda x: print(pp(x))
+
     if args.command in [None, 'help']:
         parser.print_help()
     elif args.command == 'list':
-        list_beverages()
-    elif args.command == 'drink':
+        formatter(get_beverages())
+    elif args.command in ['order', 'drink']:
         order_drink(args.drink)
+    elif args.command == 'users':
+        formatter(get_users())
