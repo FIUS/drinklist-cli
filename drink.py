@@ -56,6 +56,15 @@ if __name__ == '__main__':
 
     commands.add_parser('users', help='List all registered users.')
 
+    balance_parser = commands.add_parser('balance', help='Get the balance of a user.')
+    balance_parser.add_argument('-user', help='The user to get the balance of',
+                                default = cfg["user"])
+
+    history_parser = commands.add_parser('history', help='Get the history of a user.')
+    history_parser.add_argument('-user', help='The user to get the history of',
+                                default = cfg["user"])
+
+
     commands.add_parser('help', help='Show this help.')
     args = parser.parse_args()
 
@@ -76,5 +85,9 @@ if __name__ == '__main__':
         formatter(beverages)
     elif args.command in ['order', 'drink']:
         order_drink(args.drink)
+    elif args.command == 'balance':
+        formatter([get("/users/" + args.user)])
+    elif args.command == 'history':
+        formatter(get("/orders/" + args.user))
     elif args.command == 'users':
         formatter(get_users())
