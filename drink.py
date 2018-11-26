@@ -44,7 +44,8 @@ if __name__ == '__main__':
                                      metavar='command',
                                      dest='command',
                                      description='The command to run')
-    commands.add_parser('list', help='List all available beverages.')
+    list_parser = commands.add_parser('list', help='List all available beverages.')
+    list_parser.add_argument('-regex', help='Filter drinks by regex.', type=str, default=None)
 
     drink_parser = commands.add_parser('drink', help='Order a drink.')
     drink_parser.add_argument('drink', type=str, help='The drink to order')
@@ -63,7 +64,12 @@ if __name__ == '__main__':
     if args.command in [None, 'help']:
         parser.print_help()
     elif args.command == 'list':
-        formatter(get_beverages())
+        beverages = get_beverages()
+        if args.regex is not None:
+            import re
+            p = re.compile(args.regex, re.IGNORECASE if args.regex==args.regex.lower() else re.ASCII)
+            beverages = [b for b in beverages if p.search(b['name']) is not None]
+        formatter(beverages)
     elif args.command in ['order', 'drink']:
         order_drink(args.drink)
     elif args.command == 'users':
