@@ -14,10 +14,14 @@ def get_login_token(api_url, password):
 
 cfg = config.Config(pathlib.Path("~/.drinklist").expanduser())
 
-cfg.init_value('url', lambda: "https://fius.informatik.uni-stuttgart.de/drinklist/api")
-cfg.init_value('pw', lambda: getpass.getpass())
-cfg.init_value('token', lambda: get_login_token(cfg["url"], cfg['pw']))
-cfg.init_value('user', lambda: input("Username: "))
+cfg.add_config_parameter('url', lambda: "https://fius.informatik.uni-stuttgart.de/drinklist/api",
+                         help='The API url of the drinklist')
+cfg.add_config_parameter('pw', lambda: getpass.getpass(),
+                         help='The drinklist password')
+cfg.add_config_parameter('token', lambda: get_login_token(cfg["url"], cfg['pw']),
+                         help='The login token to use.')
+cfg.add_config_parameter('user', lambda: input("Username: "),
+                         help='Your drinklist username')
 
 def get(suburl):
     global cfg
@@ -40,6 +44,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('-format', choices=['text', 'json'], help='Output format')
+    cfg.add_args(parser)
     commands = parser.add_subparsers(title='commands',
                                      metavar='command',
                                      dest='command',
@@ -55,18 +60,13 @@ if __name__ == '__main__':
     init_drink_parser(order_parser)
 
     commands.add_parser('users', help='List all registered users.')
-
-    balance_parser = commands.add_parser('balance', help='Get the balance of a user.')
-    balance_parser.add_argument('-user', help='The user to get the balance of',
-                                default = cfg["user"])
-
-    history_parser = commands.add_parser('history', help='Get the history of a user.')
-    history_parser.add_argument('-user', help='The user to get the history of',
-                                default = cfg["user"])
+    commands.add_parser('balance', help='Get the balance.')
+    commands.add_parser('history', help='Get the history.')
 
 
     commands.add_parser('help', help='Show this help.')
     args = parser.parse_args()
+    cfg.parse_args(args)
 
     formatter = None
     if args.format == 'json':
@@ -86,8 +86,8 @@ if __name__ == '__main__':
     elif args.command in ['order', 'drink']:
         order_drink(args.drink)
     elif args.command == 'balance':
-        formatter([get("/users/" + args.user)])
+        formatter([get("/users/" + cfg['user'])])
     elif args.command == 'history':
-        formatter(get("/orders/" + args.user))
+        formatter(get("/orders/" + cfg['user']))
     elif args.command == 'users':
         formatter(get_users())
