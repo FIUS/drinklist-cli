@@ -18,10 +18,15 @@ cfg.init_value('pw', lambda: getpass.getpass())
 cfg.init_value('token', lambda: get_login_token(cfg["url"], cfg['pw']))
 cfg.init_value('user', lambda: input("Username: "))
 
-def get_beverages():
+def get(suburl):
     global cfg
-    r = requests.get(cfg["url"] + "/beverages", headers={'X-Auth-Token' : cfg['token']})
+    r = requests.get(cfg["url"] + suburl, headers={'X-Auth-Token' : cfg['token']})
     return json.loads(r.text)
+
+def get_beverages():
+    return get("/beverages")
+def get_users():
+    return get("/users")
 
 def list_beverages():
     j = get_beverages()
@@ -47,6 +52,8 @@ if __name__ == '__main__':
 
     drink_parser = commands.add_parser('drink', help='Order a drink.')
     drink_parser.add_argument('drink', type=str, help='The drink to order')
+
+
 
     commands.add_parser('help', help='Show this help.')
     args = parser.parse_args()
