@@ -36,5 +36,4 @@ def pp(val):
                 return '\n'.join(pp(v) for v in val)
         elif d == 2:
             return format_table([[pp(cell) for cell in row] for row in val])
-    print("Hallo")
     return str(val)
