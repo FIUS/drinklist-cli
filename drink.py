@@ -6,22 +6,13 @@ import pathlib
 import config
 from ppformat import pp
 
-def get_login_token(api_url, password):
+cfg = None
+
+def get_login_token(password):
     global cfg
-    response = requests.post(api_url + "/login", data = {'password' : password})
+    response = requests.post(cfg['url'] + "/login", data = {'password' : password})
     json_result = json.loads(response.text)
     return json_result[u'token']
-
-cfg = config.Config(pathlib.Path("~/.drinklist").expanduser())
-
-cfg.add_config_parameter('url', lambda: "https://fius.informatik.uni-stuttgart.de/drinklist/api",
-                         help='The API url of the drinklist')
-cfg.add_config_parameter('pw', lambda: getpass.getpass(),
-                         help='The drinklist password')
-cfg.add_config_parameter('token', lambda: get_login_token(cfg["url"], cfg['pw']),
-                         help='The login token to use.')
-cfg.add_config_parameter('user', lambda: input("Username: "),
-                         help='Your drinklist username')
 
 def get(suburl):
     global cfg
@@ -44,7 +35,18 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('-format', choices=['text', 'json'], help='Output format')
+
+    cfg = config.Config(pathlib.Path("~/.drinklist").expanduser())
+    cfg.add_config_parameter('url', lambda: "https://fius.informatik.uni-stuttgart.de/drinklist/api",
+                             help='The API url of the drinklist')
+    cfg.add_config_parameter('pw', lambda: getpass.getpass(),
+                             help='The drinklist password')
+    cfg.add_config_parameter('token', lambda: get_login_token(cfg['pw']),
+                             help='The login token to use.')
+    cfg.add_config_parameter('user', lambda: input("Username: "),
+                             help='Your drinklist username')
     cfg.add_args(parser)
+
     commands = parser.add_subparsers(title='commands',
                                      metavar='command',
                                      dest='command',
