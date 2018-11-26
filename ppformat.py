@@ -23,6 +23,8 @@ def pp(val):
     if isinstance(val, str):
         return val
     if isinstance(val, list):
+        if len(val)==0:
+            return "Nothing."
         d = dimensionality(val)
         if d == 1:
             if isinstance(val[0], dict):
