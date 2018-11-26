@@ -21,7 +21,7 @@ cfg.init_value('user', lambda: input("Username: "))
 def get_beverages():
     global cfg
     r = requests.get(cfg["url"] + "/beverages", headers={'X-Auth-Token' : cfg['token']})
-    return json.loads(r)
+    return json.loads(r.text)
 
 def list_beverages():
     j = get_beverages()
