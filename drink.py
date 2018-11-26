@@ -48,7 +48,11 @@ if __name__ == '__main__':
     list_parser.add_argument('-regex', help='Filter drinks by regex.', type=str, default=None)
 
     drink_parser = commands.add_parser('drink', help='Order a drink.')
-    drink_parser.add_argument('drink', type=str, help='The drink to order')
+    order_parser = commands.add_parser('order', help='Alias for drink.')
+    def init_drink_parser(drink_parser):
+        drink_parser.add_argument('drink', type=str, help='The drink to order')
+    init_drink_parser(drink_parser)
+    init_drink_parser(order_parser)
 
     commands.add_parser('users', help='List all registered users.')
 
