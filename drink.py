@@ -22,8 +22,9 @@ def list_beverages():
     global cfg
     r = requests.get(cfg["url"] + "/beverages", headers={'X-Auth-Token' : cfg['token']})
     j = json.loads(r.text)
+    column_width = max(len(drink["name"]) for drink in j) + 2
     for drink in j:
-        print(u"{}\t{}".format(drink["name"], drink["price"]))
+        print(u"{} {}".format(drink["name"].ljust(column_width), "{0:.2f} €".format(drink["price"]/100.0)))
 
 def order_drink(drink):
     global cfg
