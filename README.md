@@ -1,6 +1,6 @@
 # Drinklist CLI
 
-CLI for the http://github.com/FIUS/drinklist
+CLI for the [Drinklist](http://github.com/FIUS/drinklist)
 
 ```
 usage: drink.py [-h] [-format {text,json}] [-config CONFIG_PATH] [-url URL]
