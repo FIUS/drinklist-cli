@@ -22,7 +22,7 @@ def refresh_token():
 def get(suburl, retry=True):
     global cfg
     r = requests.get(cfg["url"] + suburl, headers={'X-Auth-Token' : cfg['token']})
-    if r.status_code == 403:
+    if r.status_code == 403 and retry:
         refresh_token()
         return get(suburl, False)
     return json.loads(r.text)
