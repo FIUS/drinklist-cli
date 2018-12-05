@@ -77,6 +77,9 @@ if __name__ == '__main__':
     history_parser.add_argument('-all', action='store_true',
                                 help='Show history for all users')
 
+    commands.add_parser('refresh_token',
+                        help='Get a new authentication token for the drinklist.')
+
     commands.add_parser('help', help='Show this help.')
     args = parser.parse_args()
     cfg.parse_args(args)
@@ -122,3 +125,6 @@ if __name__ == '__main__':
             formatter(get("/orders/" + cfg['user']))
     elif args.command == 'users':
         formatter(get_users())
+    elif args.command == 'refresh_token':
+        cfg['token'] = get_login_token(cfg['pw'])
+        cfg.write_config()
