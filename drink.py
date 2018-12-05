@@ -62,9 +62,13 @@ if __name__ == '__main__':
     init_drink_parser(order_parser)
 
     commands.add_parser('users', help='List all registered users.')
-    commands.add_parser('balance', help='Get the balance.')
-    commands.add_parser('history', help='Get the history.')
+    balance_parser = commands.add_parser('balance', help='Get the balance.')
+    balance_parser.add_argument('-all', action='store_true',
+                                help='show balance for all users')
 
+    history_parser = commands.add_parser('history', help='Get the history.')
+    history_parser.add_argument('-all', action='store_true',
+                                help='Show history for all users')
 
     commands.add_parser('help', help='Show this help.')
     args = parser.parse_args()
@@ -88,8 +92,17 @@ if __name__ == '__main__':
     elif args.command in ['order', 'drink']:
         order_drink(args.drink)
     elif args.command == 'balance':
-        formatter([get("/users/" + cfg['user'])])
+        if args.all:
+            res = []
+            for user in get_users():
+                res+=[get("/users/" + user)]
+            formatter(res)
+        else:
+            formatter([get("/users/" + cfg['user'])])
     elif args.command == 'history':
-        formatter(get("/orders/" + cfg['user']))
+        if args.all:
+            formatter(get("/orders"))
+        else:
+            formatter(get("/orders/" + cfg['user']))
     elif args.command == 'users':
         formatter(get_users())
