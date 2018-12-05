@@ -32,11 +32,14 @@ def get_beverages():
 def get_users():
     return get("/users")
 
-def order_drink(drink):
+def order_drink(drink, retry=True):
     global cfg
     r = requests.post(cfg["url"] + "/orders",
                       headers={'X-Auth-Token': cfg['token']},
                       params={'user': cfg['user'], 'beverage': drink})
+    if r.status_code == 403 and retry:
+        refresh_token()
+        return order_drink(drink, retry=False)
     print(r.text)
 
 if __name__ == '__main__':
