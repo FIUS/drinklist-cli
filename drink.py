@@ -5,6 +5,7 @@ import getpass
 import pathlib
 import config
 from ppformat import pp
+import ppformat
 
 cfg = None
 
@@ -35,6 +36,12 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('-format', choices=['text', 'json'], help='Output format')
+    parser.add_argument('-sort-by', type=str, default=None,
+                        help='Sort the output by the given column (if possible)')
+    parser.add_argument('-columns', type=str, nargs='+', default=None,
+                        help='The columns to show (if applicable)')
+    parser.add_argument('-sort-descending', action='store_true',
+                        help='Sort items descending')
 
     cfg = config.Config(pathlib.Path("~/.drinklist").expanduser())
     cfg.add_config_parameter('url', lambda: "https://fius.informatik.uni-stuttgart.de/drinklist/api",
@@ -78,7 +85,16 @@ if __name__ == '__main__':
     if args.format == 'json':
         formatter = lambda x: print(json.dumps(x))
     else:
-        formatter = lambda x: print(pp(x))
+        if args.columns is not None:
+            formatter = lambda x: print(ppformat.format_obj_table(x, args.columns))
+        else:
+            formatter = lambda x: print(pp(x))
+    if args.sort_by is not None:
+        inner_formatter = formatter
+        def real_formatter(x):
+            x.sort(key=lambda y: y[args.sort_by], reverse=args.sort_descending)
+            return inner_formatter(x)
+        formatter = real_formatter
 
     if args.command in [None, 'help']:
         parser.print_help()
