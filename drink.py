@@ -15,9 +15,16 @@ def get_login_token(password):
     json_result = json.loads(response.text)
     return json_result[u'token']
 
-def get(suburl):
+def refresh_token():
+    cfg['token'] = get_login_token(cfg['pw'])
+    cfg.write_config()
+
+def get(suburl, retry=True):
     global cfg
     r = requests.get(cfg["url"] + suburl, headers={'X-Auth-Token' : cfg['token']})
+    if r.status_code == 403:
+        refresh_token()
+        return get(suburl, False)
     return json.loads(r.text)
 
 def get_beverages():
@@ -126,5 +133,4 @@ if __name__ == '__main__':
     elif args.command == 'users':
         formatter(get_users())
     elif args.command == 'refresh_token':
-        cfg['token'] = get_login_token(cfg['pw'])
-        cfg.write_config()
+        refresh_token()
