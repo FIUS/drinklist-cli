@@ -20,12 +20,16 @@ import pathlib
 import config
 from ppformat import pp
 import ppformat
+import sys
 
 cfg = None
 
 def get_login_token(password):
     global cfg
     response = requests.post(cfg['url'] + "/login", data = {'password' : password})
+    if not response.ok:
+        print("Failed to get token: "+str(response.status_code)+": "+r.text, file=sys.stderr)
+        sys.exit(1)
     json_result = json.loads(response.text)
     return json_result[u'token']
 
@@ -39,6 +43,8 @@ def get(suburl, retry=True):
     if r.status_code == 403 and retry:
         refresh_token()
         return get(suburl, False)
+    if not r.ok:
+        print("API returned error "+str(r.status_code)+": "+r.text, file=sys.stderr)
     return json.loads(r.text)
 
 def get_beverages():
@@ -54,6 +60,9 @@ def order_drink(drink, retry=True):
     if r.status_code == 403 and retry:
         refresh_token()
         return order_drink(drink, retry=False)
+    if not r.ok:
+        print(str(r.status_code) + ": " + r.text, file=sys.stderr)
+        sys.exit(1)
     print(r.text)
 
 if __name__ == '__main__':
