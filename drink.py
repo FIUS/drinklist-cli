@@ -21,14 +21,17 @@ import config
 from ppformat import pp
 import ppformat
 import sys
+import levenshtein as LD
 
 cfg = None
 
 def get_login_token(password):
     global cfg
-    response = requests.post(cfg['url'] + "/login", data = {'password' : password})
+    response = requests.post(
+        cfg['url'] + "/login", data={'password': password})
     if not response.ok:
-        print("Failed to get token: "+str(response.status_code)+": "+r.text, file=sys.stderr)
+        print("Failed to get token: "+str(response.status_code) +
+              ": "+r.text, file=sys.stderr)
         sys.exit(1)
     json_result = json.loads(response.text)
     return json_result[u'token']
@@ -39,16 +42,19 @@ def refresh_token():
 
 def get(suburl, retry=True):
     global cfg
-    r = requests.get(cfg["url"] + suburl, headers={'X-Auth-Token' : cfg['token']})
+    r = requests.get(cfg["url"] + suburl,
+                     headers={'X-Auth-Token': cfg['token']})
     if r.status_code == 403 and retry:
         refresh_token()
         return get(suburl, False)
     if not r.ok:
-        print("API returned error "+str(r.status_code)+": "+r.text, file=sys.stderr)
+        print("API returned error "+str(r.status_code) +
+              ": "+r.text, file=sys.stderr)
     return json.loads(r.text)
 
 def get_beverages():
     return get("/beverages")
+
 def get_users():
     return get("/users")
 
@@ -60,15 +66,42 @@ def order_drink(drink, retry=True):
     if r.status_code == 403 and retry:
         refresh_token()
         return order_drink(drink, retry=False)
+
     if not r.ok:
-        print(str(r.status_code) + ": " + r.text, file=sys.stderr)
-        sys.exit(1)
-    print(r.text)
+        if r.status_code == 400:
+            availableDrinks = get_beverages()
+            smallestLD = 2000
+            correctName = ""
+            for d in availableDrinks:
+                ld = LD.distance(d["name"], drink)
+                if ld < smallestLD:
+                    smallestLD = ld
+                    correctName = d["name"]
+                elif ld == smallestLD:
+                    if drink in d["name"]:
+                        smallestLD = ld
+                        correctName = d["name"]
+
+            print("Did you mean ", end="")
+            print(correctName, end="")
+            print("? (y/n)")
+
+            answer = input()
+
+            if answer == "y":
+                order_drink(correctName)
+        else:
+            print(str(r.status_code) + ": " + r.text, file=sys.stderr)
+            sys.exit(1)
+    else:
+        print(r.text)
+
 
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('-format', choices=['text', 'json'], help='Output format')
+    parser.add_argument(
+        '-format', choices=['text', 'json'], help='Output format')
     parser.add_argument('-sort-by', type=str, default=None,
                         help='Sort the output by the given column (if possible)')
     parser.add_argument('-columns', type=str, nargs='+', default=None,
@@ -91,11 +124,14 @@ if __name__ == '__main__':
                                      metavar='command',
                                      dest='command',
                                      description='The command to run')
-    list_parser = commands.add_parser('list', help='List all available beverages.')
-    list_parser.add_argument('-regex', help='Filter drinks by regex.', type=str, default=None)
+    list_parser = commands.add_parser(
+        'list', help='List all available beverages.')
+    list_parser.add_argument(
+        '-regex', help='Filter drinks by regex.', type=str, default=None)
 
     drink_parser = commands.add_parser('drink', help='Order a drink.')
     order_parser = commands.add_parser('order', help='Alias for drink.')
+
     def init_drink_parser(drink_parser):
         drink_parser.add_argument('drink', type=str, help='The drink to order')
     init_drink_parser(drink_parser)
@@ -121,14 +157,16 @@ if __name__ == '__main__':
 
     formatter = None
     if args.format == 'json':
-        formatter = lambda x: print(json.dumps(x))
+        def formatter(x): return print(json.dumps(x))
     else:
         if args.columns is not None:
-            formatter = lambda x: print(ppformat.format_obj_table(x, args.columns))
+            def formatter(x): return print(
+                ppformat.format_obj_table(x, args.columns))
         else:
-            formatter = lambda x: print(pp(x))
+            def formatter(x): return print(pp(x))
     if args.sort_by is not None:
         inner_formatter = formatter
+
         def real_formatter(x):
             x.sort(key=lambda y: y[args.sort_by], reverse=args.sort_descending)
             return inner_formatter(x)
@@ -140,8 +178,10 @@ if __name__ == '__main__':
         beverages = get_beverages()
         if args.regex is not None:
             import re
-            p = re.compile(args.regex, re.IGNORECASE if args.regex==args.regex.lower() else re.ASCII)
-            beverages = [b for b in beverages if p.search(b['name']) is not None]
+            p = re.compile(args.regex, re.IGNORECASE if args.regex ==
+                           args.regex.lower() else re.ASCII)
+            beverages = [b for b in beverages if p.search(
+                b['name']) is not None]
         formatter(beverages)
     elif args.command in ['order', 'drink']:
         order_drink(args.drink)
@@ -149,7 +189,7 @@ if __name__ == '__main__':
         if args.all:
             res = []
             for user in get_users():
-                res+=[get("/users/" + user)]
+                res += [get("/users/" + user)]
             formatter(res)
         else:
             formatter([get("/users/" + cfg['user'])])
