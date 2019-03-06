@@ -27,11 +27,9 @@ cfg = None
 
 def get_login_token(password):
     global cfg
-    response = requests.post(
-        cfg['url'] + "/login", data={'password': password})
+    response = requests.post(cfg['url'] + "/login", data={'password': password})
     if not response.ok:
-        print("Failed to get token: "+str(response.status_code) +
-              ": "+r.text, file=sys.stderr)
+        print("Failed to get token: " + str(response.status_code) + ": " + r.text, file=sys.stderr)
         sys.exit(1)
     json_result = json.loads(response.text)
     return json_result[u'token']
@@ -42,14 +40,12 @@ def refresh_token():
 
 def get(suburl, retry=True):
     global cfg
-    r = requests.get(cfg["url"] + suburl,
-                     headers={'X-Auth-Token': cfg['token']})
+    r = requests.get(cfg["url"] + suburl, headers={'X-Auth-Token': cfg['token']})
     if r.status_code == 403 and retry:
         refresh_token()
         return get(suburl, False)
     if not r.ok:
-        print("API returned error "+str(r.status_code) +
-              ": "+r.text, file=sys.stderr)
+        print("API returned error " + str(r.status_code) + ": " + r.text, file=sys.stderr)
     return json.loads(r.text)
 
 def get_beverages():
@@ -68,34 +64,33 @@ def order_drink(drink, retry=True):
         return order_drink(drink, retry=False)
 
     if not r.ok:
-        if r.status_code == 400:
-            availableDrinks = get_beverages()
-            smallestLD = 2000
-            correctName = ""
-            for d in availableDrinks:
-                ld = LD.distance(d["name"], drink)
-                if ld < smallestLD:
+        if not r.text == "Unknown beverage":
+          print(str(r.status_code) + ": " + r.text, file=sys.stderr)
+            sys.exit(1)
+
+        availableDrinks = get_beverages()
+        smallestLD = 2000
+        correctName = ""
+        for d in availableDrinks:
+            ld = LD.distance(d["name"], drink)
+            if ld < smallestLD:
+                smallestLD = ld
+                correctName = d["name"]
+            elif ld == smallestLD:
+                if drink in d["name"]:
                     smallestLD = ld
                     correctName = d["name"]
-                elif ld == smallestLD:
-                    if drink in d["name"]:
-                        smallestLD = ld
-                        correctName = d["name"]
 
-            print("Did you mean ", end="")
-            print(correctName, end="")
-            print("? (y/n)")
+        print("Did you mean ", end="")
+        print(correctName, end="")
+        print("? (y/n)")
 
-            answer = input()
+        answer = input()
 
-            if answer == "y":
-                order_drink(correctName)
-        else:
-            print(str(r.status_code) + ": " + r.text, file=sys.stderr)
-            sys.exit(1)
+        if answer == "y":
+            order_drink(correctName)
     else:
         print(r.text)
-
 
 if __name__ == '__main__':
     import argparse
