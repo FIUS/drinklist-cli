@@ -95,14 +95,10 @@ def order_drink(drink, retry=True):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '-format', choices=['text', 'json'], help='Output format')
-    parser.add_argument('-sort-by', type=str, default=None,
-                        help='Sort the output by the given column (if possible)')
-    parser.add_argument('-columns', type=str, nargs='+', default=None,
-                        help='The columns to show (if applicable)')
-    parser.add_argument('-sort-descending', action='store_true',
-                        help='Sort items descending')
+    parser.add_argument('-format', choices=['text', 'json'], help='Output format')
+    parser.add_argument('-sort-by', type=str, default=None, help='Sort the output by the given column (if possible)')
+    parser.add_argument('-columns', type=str, nargs='+', default=None, help='The columns to show (if applicable)')
+    parser.add_argument('-sort-descending', action='store_true', help='Sort items descending')
 
     cfg = config.Config(pathlib.Path("~/.drinklist").expanduser())
     cfg.add_config_parameter('url', lambda: "https://fius.informatik.uni-stuttgart.de/drinklist/api",
@@ -119,10 +115,8 @@ if __name__ == '__main__':
                                      metavar='command',
                                      dest='command',
                                      description='The command to run')
-    list_parser = commands.add_parser(
-        'list', help='List all available beverages.')
-    list_parser.add_argument(
-        '-regex', help='Filter drinks by regex.', type=str, default=None)
+    list_parser = commands.add_parser('list', help='List all available beverages.')
+    list_parser.add_argument('-regex', help='Filter drinks by regex.', type=str, default=None)
 
     drink_parser = commands.add_parser('drink', help='Order a drink.')
     order_parser = commands.add_parser('order', help='Alias for drink.')
@@ -173,10 +167,8 @@ if __name__ == '__main__':
         beverages = get_beverages()
         if args.regex is not None:
             import re
-            p = re.compile(args.regex, re.IGNORECASE if args.regex ==
-                           args.regex.lower() else re.ASCII)
-            beverages = [b for b in beverages if p.search(
-                b['name']) is not None]
+            p = re.compile(args.regex, re.IGNORECASE if args.regex == args.regex.lower() else re.ASCII)
+            beverages = [b for b in beverages if p.search(b['name']) is not None]
         formatter(beverages)
     elif args.command in ['order', 'drink']:
         order_drink(args.drink)
