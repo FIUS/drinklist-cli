@@ -65,7 +65,7 @@ def order_drink(drink, retry=True):
 
     if not r.ok:
         if not r.text == "Unknown beverage":
-          print(str(r.status_code) + ": " + r.text, file=sys.stderr)
+            print(str(r.status_code) + ": " + r.text, file=sys.stderr)
             sys.exit(1)
 
         availableDrinks = get_beverages()
