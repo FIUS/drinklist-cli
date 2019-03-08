@@ -22,6 +22,7 @@ from ppformat import pp
 import ppformat
 import sys
 import levenshtein as LD
+import copy
 
 cfg = None
 
@@ -56,6 +57,7 @@ def get_users():
 
 def order_drink(drink, retry=True):
     global cfg
+
     r = requests.post(cfg["url"] + "/orders",
                       headers={'X-Auth-Token': cfg['token']},
                       params={'user': cfg['user'], 'beverage': drink})
@@ -111,7 +113,10 @@ if __name__ == '__main__':
                              help='Your drinklist username')
     cfg.add_args(parent_parser)
 
-    parser = argparse.ArgumentParser(parents = [parent_parser])
+    parser = argparse.ArgumentParser(parents = [copy.deepcopy(parent_parser)])
+
+    for action in parent_parser._actions:
+      action.dest = "sub_" + action.dest
 
     commands = parser.add_subparsers(title='commands',
                                      metavar='command',
@@ -145,6 +150,14 @@ nargs='+')
 
     commands.add_parser('help', help='Show this help.')
     args = parser.parse_args()
+
+    for arg in args.__dict__:
+        if(arg.startswith("sub_")):
+            orig = arg[4:]
+            default = [action.default for action in parser._actions if action.dest == orig][0]
+            if args.__dict__[arg] != default:
+              args.__dict__[orig] = args.__dict__[arg]
+
     cfg.parse_args(args)
 
     formatter = None
