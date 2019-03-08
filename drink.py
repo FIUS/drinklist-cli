@@ -55,9 +55,25 @@ def get_beverages():
 def get_users():
     return get("/users")
 
+def expand_alias(drink):
+    aliases = cfg["aliases"]
+    if drink in aliases.keys():
+        return aliases[drink]
+    else:
+        return drink
+
+def add_alias(alias, drink):
+    cfg["aliases"][alias] = drink
+    cfg.write_config()
+def del_alias(alias):
+    cfg["aliases"].pop(alias)
+    cfg.write_config()
+def get_aliases():
+    return cfg["aliases"]
+
 def order_drink(drink, retry=True):
     global cfg
-
+    drink = expand_alias(drink)
     r = requests.post(cfg["url"] + "/orders",
                       headers={'X-Auth-Token': cfg['token']},
                       params={'user': cfg['user'], 'beverage': drink})
@@ -111,6 +127,9 @@ if __name__ == '__main__':
                              help='The login token to use.')
     cfg.add_config_parameter('user', lambda: input("Username: "),
                              help='Your drinklist username')
+    cfg.add_config_parameter('aliases', lambda: {},
+                             help='The aliases defined for drinks',
+                             non_cmd=True)
     cfg.add_args(parent_parser)
 
     parser = argparse.ArgumentParser(parents = [copy.deepcopy(parent_parser)])
@@ -129,7 +148,7 @@ if __name__ == '__main__':
     order_parser = commands.add_parser('order', help='Alias for drink.', parents = [parent_parser])
 
     def init_drink_parser(drink_parser):
-        drink_parser.add_argument('drink', type=str, help='The drink to order. If multiple arguments are given, they are joined together with spaces', 
+        drink_parser.add_argument('drink', type=str, help='The drink to order. If multiple arguments are given, they are joined together with spaces',
 nargs='+')
     init_drink_parser(drink_parser)
     init_drink_parser(order_parser)
@@ -145,6 +164,18 @@ nargs='+')
 
     commands.add_parser('refresh_token',
                         help='Get a new authentication token for the drinklist.', parents = [parent_parser])
+
+    alias_parser = commands.add_parser('alias', help='Manage aliases for drinks')
+    alias_cmds = alias_parser.add_subparsers(title='alias commands',
+                                             metavar='aliascmd',
+                                             dest='aliascmd',
+                                             description='The alias command')
+    alias_cmds.add_parser('list', help='List all defined aliases')
+    alias_delete_parser = alias_cmds.add_parser('delete', help='Remove all aliases')
+    alias_delete_parser.add_argument('alias', type=str, help='The alias to delete')
+    alias_define_parser = alias_cmds.add_parser('set', help='Add a new alias')
+    alias_define_parser.add_argument('alias', type=str, help='The alias to add')
+    alias_define_parser.add_argument('drink', type=str, help='The drink the alias should point to')
 
     commands.add_parser('license', help='Show the license for this program')
 
@@ -205,6 +236,15 @@ nargs='+')
         formatter(get_users())
     elif args.command == 'refresh_token':
         refresh_token()
+    elif args.command == 'alias':
+        if args.aliascmd == 'list':
+            formatter(get_aliases())
+        elif args.aliascmd == 'delete':
+            del_alias(args.alias)
+        elif args.aliascmd == 'set':
+            add_alias(args.alias, args.drink)
+        else:
+            alias_parser.print_help()
     elif args.command == 'license':
         print("""
                      GNU GENERAL PUBLIC LICENSE

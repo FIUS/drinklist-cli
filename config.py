@@ -34,16 +34,17 @@ class Config(object):
             json.dump(self.config, f)
 
     def add_config_parameter(self, name, initializer, type=str, parameter=None,
-                             help=""):
+                             help="", non_cmd=False):
         if parameter is None:
             parameter = '-{}'.format(name)
         self.config_params[name] = {'name': name, 'type': type, 'parameter': parameter, 'help':help,
-                                    'initializer': initializer}
+                                    'initializer': initializer, 'non_cmd': non_cmd}
 
     def add_args(self, parser):
         parser.add_argument('-config', dest='config_path', type=str, help='The config file')
         for cp in self.config_params.values():
-            parser.add_argument(cp['parameter'], dest=cp['name'], type=cp['type'], help=cp['help'])
+            if not cp['non_cmd']:
+                parser.add_argument(cp['parameter'], dest=cp['name'], type=cp['type'], help=cp['help'])
 
     def parse_args(self, args):
         if 'config_path' in args.__dict__ and args.__dict__['config_path'] is not None:
