@@ -122,7 +122,8 @@ if __name__ == '__main__':
     order_parser = commands.add_parser('order', help='Alias for drink.')
 
     def init_drink_parser(drink_parser):
-        drink_parser.add_argument('drink', type=str, help='The drink to order')
+        drink_parser.add_argument('drink', type=str, help='The drink to order. If multiple arguments are given, they are joined together with spaces', 
+nargs='+')
     init_drink_parser(drink_parser)
     init_drink_parser(order_parser)
 
@@ -171,7 +172,7 @@ if __name__ == '__main__':
             beverages = [b for b in beverages if p.search(b['name']) is not None]
         formatter(beverages)
     elif args.command in ['order', 'drink']:
-        order_drink(args.drink)
+        order_drink(' '.join(args.drink))
     elif args.command == 'balance':
         if args.all:
             res = []
