@@ -22,6 +22,7 @@ from ppformat import pp
 import ppformat
 import sys
 import levenshtein as LD
+import copy
 
 cfg = None
 
@@ -56,6 +57,7 @@ def get_users():
 
 def order_drink(drink, retry=True):
     global cfg
+
     r = requests.post(cfg["url"] + "/orders",
                       headers={'X-Auth-Token': cfg['token']},
                       params={'user': cfg['user'], 'beverage': drink})
@@ -94,11 +96,11 @@ def order_drink(drink, retry=True):
 
 if __name__ == '__main__':
     import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-format', choices=['text', 'json'], help='Output format')
-    parser.add_argument('-sort-by', type=str, default=None, help='Sort the output by the given column (if possible)')
-    parser.add_argument('-columns', type=str, nargs='+', default=None, help='The columns to show (if applicable)')
-    parser.add_argument('-sort-descending', action='store_true', help='Sort items descending')
+    parent_parser = argparse.ArgumentParser(add_help = False)
+    parent_parser.add_argument('-format', choices=['text', 'json'], help='Output format')
+    parent_parser.add_argument('-sort-by', type=str, default=None, help='Sort the output by the given column (if possible)')
+    parent_parser.add_argument('-columns', type=str, nargs='+', default=None, help='The columns to show (if applicable)')
+    parent_parser.add_argument('-sort-descending', action='store_true', help='Sort items descending')
 
     cfg = config.Config(pathlib.Path("~/.drinklist").expanduser())
     cfg.add_config_parameter('url', lambda: "https://fius.informatik.uni-stuttgart.de/drinklist/api",
@@ -109,39 +111,53 @@ if __name__ == '__main__':
                              help='The login token to use.')
     cfg.add_config_parameter('user', lambda: input("Username: "),
                              help='Your drinklist username')
-    cfg.add_args(parser)
+    cfg.add_args(parent_parser)
+
+    parser = argparse.ArgumentParser(parents = [copy.deepcopy(parent_parser)])
+
+    for action in parent_parser._actions:
+      action.dest = "sub_" + action.dest
 
     commands = parser.add_subparsers(title='commands',
                                      metavar='command',
                                      dest='command',
                                      description='The command to run')
-    list_parser = commands.add_parser('list', help='List all available beverages.')
+    list_parser = commands.add_parser('list', help='List all available beverages.', parents = [parent_parser])
     list_parser.add_argument('-regex', help='Filter drinks by regex.', type=str, default=None)
 
-    drink_parser = commands.add_parser('drink', help='Order a drink.')
-    order_parser = commands.add_parser('order', help='Alias for drink.')
+    drink_parser = commands.add_parser('drink', help='Order a drink.', parents = [parent_parser])
+    order_parser = commands.add_parser('order', help='Alias for drink.', parents = [parent_parser])
 
     def init_drink_parser(drink_parser):
-        drink_parser.add_argument('drink', type=str, help='The drink to order')
+        drink_parser.add_argument('drink', type=str, help='The drink to order. If multiple arguments are given, they are joined together with spaces', 
+nargs='+')
     init_drink_parser(drink_parser)
     init_drink_parser(order_parser)
 
     commands.add_parser('users', help='List all registered users.')
-    balance_parser = commands.add_parser('balance', help='Get the balance.')
+    balance_parser = commands.add_parser('balance', help='Get the balance.', parents = [parent_parser])
     balance_parser.add_argument('-all', action='store_true',
                                 help='show balance for all users')
 
-    history_parser = commands.add_parser('history', help='Get the history.')
+    history_parser = commands.add_parser('history', help='Get the history.', parents = [parent_parser])
     history_parser.add_argument('-all', action='store_true',
                                 help='Show history for all users')
 
     commands.add_parser('refresh_token',
-                        help='Get a new authentication token for the drinklist.')
+                        help='Get a new authentication token for the drinklist.', parents = [parent_parser])
 
     commands.add_parser('license', help='Show the license for this program')
 
     commands.add_parser('help', help='Show this help.')
     args = parser.parse_args()
+
+    for arg in args.__dict__:
+        if(arg.startswith("sub_")):
+            orig = arg[4:]
+            default = [action.default for action in parser._actions if action.dest == orig][0]
+            if args.__dict__[arg] != default:
+              args.__dict__[orig] = args.__dict__[arg]
+
     cfg.parse_args(args)
 
     formatter = None
@@ -171,7 +187,7 @@ if __name__ == '__main__':
             beverages = [b for b in beverages if p.search(b['name']) is not None]
         formatter(beverages)
     elif args.command in ['order', 'drink']:
-        order_drink(args.drink)
+        order_drink(' '.join(args.drink))
     elif args.command == 'balance':
         if args.all:
             res = []
