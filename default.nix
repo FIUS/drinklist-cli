@@ -1,6 +1,7 @@
 with import <nixpkgs> {};
 let
 python-requirements = ps : with ps; [
+    numpy
     requests
 ];
 in buildEnv {
