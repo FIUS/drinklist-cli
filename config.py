@@ -31,7 +31,14 @@ class Config(object):
 
     def write_config(self):
         with self.config_path.open(mode='w') as f:
+
             json.dump(self.config, f)
+
+    def reset_config_parameter(self, name):
+        if name in self.config:
+            self.config.pop(name)
+        if name in self.tmp_config:
+            self.tmp_config.pop(name)
 
     def add_config_parameter(self, name, initializer, type=str, parameter=None,
                              help="", non_cmd=False):
