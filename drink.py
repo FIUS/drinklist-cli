@@ -26,18 +26,26 @@ import copy
 
 cfg = None
 
-def get_login_token(password):
+def get_login_token():
     global cfg
-    response = requests.post(cfg['url'] + "/login", data={'password': password})
+    refresh_token()
+    return cfg['token']
+
+def refresh_token():
+    global cfg
+    response = requests.post(cfg['url'] + "/login", data={'password': cfg['pw']})
+    if response.status_code == 403:
+        print("Failed to get login token: wrong password.", file=sys.stderr)
+        cfg.reset_config_parameter('pw')
+        refresh_token()
+        return
     if not response.ok:
         print("Failed to get token: " + str(response.status_code) + ": " + r.text, file=sys.stderr)
         sys.exit(1)
     json_result = json.loads(response.text)
-    return json_result[u'token']
-
-def refresh_token():
-    cfg['token'] = get_login_token(cfg['pw'])
+    cfg['token'] = json_result[u'token']
     cfg.write_config()
+
 
 def get(suburl, retry=True):
     global cfg
@@ -123,7 +131,7 @@ if __name__ == '__main__':
                              help='The API url of the drinklist')
     cfg.add_config_parameter('pw', lambda: getpass.getpass(),
                              help='The drinklist password')
-    cfg.add_config_parameter('token', lambda: get_login_token(cfg['pw']),
+    cfg.add_config_parameter('token', lambda: get_login_token(),
                              help='The login token to use.')
     cfg.add_config_parameter('user', lambda: input("Username: "),
                              help='Your drinklist username')
