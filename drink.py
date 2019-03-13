@@ -178,7 +178,7 @@ nargs='+')
                                              metavar='aliascmd',
                                              dest='aliascmd',
                                              description='The alias command')
-    alias_cmds.add_parser('list', help='List all defined aliases')
+    alias_list_parser = alias_cmds.add_parser('list', help='List all defined aliases')
     alias_delete_parser = alias_cmds.add_parser('delete', help='Remove all aliases')
     alias_delete_parser.add_argument('alias', type=str, help='The alias to delete')
     alias_define_parser = alias_cmds.add_parser('set', help='Add a new alias')
@@ -187,7 +187,8 @@ nargs='+')
 
     commands.add_parser('license', help='Show the license for this program')
 
-    commands.add_parser('help', help='Show this help.')
+    help_parser = commands.add_parser('help', help='Show this help.')
+    help_parser.add_argument('subject', type=str, nargs='*', help='The command to show help for')
     args = parser.parse_args()
 
     for arg in args.__dict__:
@@ -217,7 +218,31 @@ nargs='+')
         formatter = real_formatter
 
     if args.command in [None, 'help']:
-        parser.print_help()
+        if args.subject == []:
+          parser.print_help()
+        else:
+          args.subject = " ".join(args.subject)
+          if args.subject == 'list':
+              list_parser.print_help()
+          elif args.subject == 'help':
+              help_parser.print_help()
+          elif args.subject in ['drink', 'order']:
+              drink_parser.print_help()
+          elif args.subject == 'balance':
+              balance_parser.print_help()
+          elif args.subject == 'history':
+              history_parser.print_help()
+          elif args.subject == 'alias':
+            alias_parser.print_help()
+          elif args.subject.startswith('alias '):
+              if args.subject.startswith('delete', 6):
+                  alias_delete_parser.print_help()
+              elif args.subject.startswith('set', 6):
+                  alias_define_parser.print_help()
+              elif args.subject.startswith('', 6):
+                  alias_list_parser.print_help()
+          else:
+              print("There is no help page for {}".format(args.subject))
     elif args.command == 'list':
         beverages = get_beverages()
         if args.regex is not None:
