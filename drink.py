@@ -218,7 +218,7 @@ nargs='+')
         formatter = real_formatter
 
     if args.command in [None, 'help']:
-        if args.subject == []:
+        if args.command is None or args.subject == []:
           parser.print_help()
         else:
           args.subject = " ".join(args.subject)
