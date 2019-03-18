@@ -2,6 +2,7 @@
 , ref ? "master"
 , url ? https://github.com/FIUS/drinklist-cli
 , rev ? ""
+, ...
 }:
 with pkgs;
 let
