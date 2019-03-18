@@ -28,7 +28,7 @@ stdenv.mkDerivation rec {
    installPhase = ''
      mkdir -p $out/bin
      mkdir -p $out/opt
-     cp ./*.py $out/opt/
+     cp ./* $out/opt/
      echo '#!/bin/sh' > $out/bin/drinklist
      echo "${python-binary} $out/opt/drink.py \"\$@\"" > $out/bin/drinklist
      chmod +x $out/bin/drinklist
