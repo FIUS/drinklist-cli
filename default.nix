@@ -37,6 +37,6 @@ stdenv.mkDerivation rec {
      mkdir -p $out/etc/bash_completion.d
      ln -s $out/opt/bash_completions.sh $out/etc/bash_completion.d/drinklist.bash-completion
      mkdir -p $out/share/bash-completion/completions
-     ln -s $out/opt/bash_completions.sh $out/share/bash-completion/completions/drinklist.bash
+     ln -s $out/opt/bash_completions.sh $out/share/bash-completion/completions/drinklist
    '';
 }
