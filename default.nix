@@ -30,5 +30,6 @@ stdenv.mkDerivation rec {
      echo '#!/bin/sh' > $out/bin/drinklist
      echo "${python-binary} $out/opt/drink.py \"\$@\"" > $out/bin/drinklist
      chmod +x $out/bin/drinklist
+     ln -s $out/opt/bash_completions.sh $out/etc/bash_completion.d/drinklist.sh
    '';
 }
