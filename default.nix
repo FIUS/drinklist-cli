@@ -1,6 +1,7 @@
 { pkgs ? import <nixpkgs> {}
 , ref ? "master"
 , url ? https://github.com/FIUS/drinklist-cli
+, rev ? ""
 }:
 with pkgs;
 let
@@ -21,7 +22,7 @@ stdenv.mkDerivation rec {
    };
 
    src = fetchGit {
-     inherit url ref;
+     inherit url ref rev;
    };
 
    buildInputs = [ python-package ];
