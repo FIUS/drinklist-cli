@@ -22,11 +22,15 @@ stdenv.mkDerivation rec {
 
    src = ./.;
 
+   dontBuild = true;
    buildInputs = [ python-package ];
    installPhase = ''
      mkdir -p $out/bin
      mkdir -p $out/opt
-     cp ./* $out/opt/
+     for file in ./*
+     do
+       cp -r $file $out/opt/
+     done
      echo '#!/bin/sh' > $out/bin/drinklist
      echo "${python-binary} $out/opt/drink.py \"\$@\"" > $out/bin/drinklist
      chmod +x $out/bin/drinklist
