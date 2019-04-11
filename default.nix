@@ -1,7 +1,4 @@
 { pkgs ? import <nixpkgs> {}
-, ref ? "master"
-, url ? https://github.com/FIUS/drinklist-cli
-, rev ? ""
 , ...
 }:
 with pkgs;
@@ -22,9 +19,7 @@ stdenv.mkDerivation rec {
      license = stdenv.lib.licenses.gpl3;
    };
 
-   src = fetchGit {
-     inherit url ref rev;
-   };
+   src = ./.;
 
    buildInputs = [ python-package ];
    installPhase = ''
