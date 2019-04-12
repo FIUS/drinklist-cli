@@ -1,7 +1,5 @@
 { pkgs ? import <nixpkgs> {}
-, ref ? "master"
-, url ? https://github.com/FIUS/drinklist-cli
-, rev ? ""
+, stdenv ? pkgs.stdenv
 , ...
 }:
 with pkgs;
@@ -22,15 +20,17 @@ stdenv.mkDerivation rec {
      license = stdenv.lib.licenses.gpl3;
    };
 
-   src = fetchGit {
-     inherit url ref rev;
-   };
+   src = ./.;
 
+   dontBuild = true;
    buildInputs = [ python-package ];
    installPhase = ''
      mkdir -p $out/bin
      mkdir -p $out/opt
-     cp ./* $out/opt/
+     for file in ./*
+     do
+       cp -r $file $out/opt/
+     done
      echo '#!/bin/sh' > $out/bin/drinklist
      echo "${python-binary} $out/opt/drink.py \"\$@\"" > $out/bin/drinklist
      chmod +x $out/bin/drinklist
