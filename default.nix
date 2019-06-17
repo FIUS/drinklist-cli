@@ -31,6 +31,7 @@ stdenvNoCC.mkDerivation rec {
        cp -r $file $out/opt/
      done
      makeWrapper $out/opt/drink.py $out/bin/drinklist
+     makeWrapper $out/opt/drink.py $out/bin/drink --add-flags drink
 
      # Link bash completion
      mkdir -p $out/etc/bash_completion.d
