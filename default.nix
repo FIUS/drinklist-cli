@@ -1,17 +1,15 @@
 { pkgs ? import <nixpkgs> {}
-, stdenv ? pkgs.stdenv
 , ...
 }:
 with pkgs;
 let
-python-requirements = ps : with ps; [
+  python-requirements = ps : with ps; [
     numpy
     requests
   ];
   python-package = (python3.withPackages python-requirements);
-  python-binary = "${python-package}/bin/python";
 in
-stdenv.mkDerivation rec {
+stdenvNoCC.mkDerivation rec {
    name = "drinklist-cli";
 
    meta = {
@@ -23,6 +21,7 @@ stdenv.mkDerivation rec {
    src = ./.;
 
    dontBuild = true;
+   nativeBuildInputs = [ makeWrapper ];
    buildInputs = [ python-package ];
    installPhase = ''
      mkdir -p $out/bin
@@ -31,9 +30,7 @@ stdenv.mkDerivation rec {
      do
        cp -r $file $out/opt/
      done
-     echo '#!/bin/sh' > $out/bin/drinklist
-     echo "${python-binary} $out/opt/drink.py \"\$@\"" > $out/bin/drinklist
-     chmod +x $out/bin/drinklist
+     makeWrapper $out/opt/drink.py $out/bin/drinklist
 
      # Link bash completion
      mkdir -p $out/etc/bash_completion.d
