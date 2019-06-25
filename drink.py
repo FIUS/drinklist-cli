@@ -128,7 +128,7 @@ if __name__ == '__main__':
 
     cfg = config.Config(pathlib.Path("~/.drinklist").expanduser())
     cfg.add_config_parameter('url', lambda: "https://fius.informatik.uni-stuttgart.de/drinklist/api",
-                             help='The API url of the drinklist')
+                             help='The API url of the drinklist', parameter='--url')
     cfg.add_config_parameter('pw', lambda: getpass.getpass(),
                              help='The drinklist password')
     cfg.add_config_parameter('token', lambda: get_login_token(),
