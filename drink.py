@@ -23,6 +23,7 @@ import ppformat
 import sys
 import levenshtein as LD
 import copy
+from utils import y_or_n_pred, find_minimizing
 
 cfg = None
 
@@ -78,33 +79,6 @@ def del_alias(alias):
     cfg.write_config()
 def get_aliases():
     return cfg["aliases"]
-
-def y_or_n_pred(question, default=None):
-    print("{}? [{}/{}]"
-          .format(question,
-                  ("Y" if default is True else "y"),
-                  ("N" if default is False else "n")))
-
-    answer = input()
-
-    if answer == "y" or answer == "Y":
-        return True
-    elif answer == "n" or answer == "N":
-        return False
-    elif default is None:
-        print("Please answer y or n. ")
-        return y_or_n_pred(question, None)
-    else:
-        return default
-
-def find_minimizing(lst, rating_fn):
-    (min_val, min_rating) = (None, None)
-    for el in lst:
-        rating = rating_fn(el)
-        if min_rating is None or rating < min_rating:
-            (min_val, min_rating) = (el, rating)
-    return min_val
-
 def order_drink(drink, retry=True):
     global cfg
     drink = expand_alias(drink)
