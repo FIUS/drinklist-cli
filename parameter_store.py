@@ -111,7 +111,7 @@ class ParameterStore(object):
             self.load()
         for cp in self.params.values():
             if cp['name'] in args.__dict__ and args.__dict__[cp['name']] is not None:
-                self.tmp[cp['name']] = args.__dict__[cp['name']]
+                self.tmp_values[cp['name']] = args.__dict__[cp['name']]
 
     def set_files(self, paths):
         """Set the files to be used. This calls load internally.
