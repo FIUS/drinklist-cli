@@ -79,6 +79,32 @@ def del_alias(alias):
 def get_aliases():
     return cfg["aliases"]
 
+def y_or_n_pred(question, default=None):
+    print("{}? [{}/{}]"
+          .format(question,
+                  ("Y" if default is True else "y"),
+                  ("N" if default is False else "n")))
+
+    answer = input()
+
+    if answer == "y" or answer == "Y":
+        return True
+    elif answer == "n" or answer == "N":
+        return False
+    elif default is None:
+        print("Please answer y or n. ")
+        return y_or_n_pred(question, None)
+    else:
+        return default
+
+def find_minimizing(lst, rating_fn):
+    (min_val, min_rating) = (None, None)
+    for el in lst:
+        rating = rating_fn(el)
+        if min_rating is None or rating < min_rating:
+            (min_val, min_rating) = (el, rating)
+    return min_val
+
 def order_drink(drink, retry=True):
     global cfg
     drink = expand_alias(drink)
@@ -94,26 +120,11 @@ def order_drink(drink, retry=True):
             print(str(r.status_code) + ": " + r.text, file=sys.stderr)
             sys.exit(1)
 
-        availableDrinks = get_beverages()
-        smallestLD = 2000
-        correctName = ""
-        for d in availableDrinks:
-            ld = LD.distance(d["name"], drink)
-            if ld < smallestLD:
-                smallestLD = ld
-                correctName = d["name"]
-            elif ld == smallestLD:
-                if drink in d["name"]:
-                    smallestLD = ld
-                    correctName = d["name"]
-
-        print("Did you mean ", end="")
-        print(correctName, end="")
-        print("? (y/n)")
-
-        answer = input()
-
-        if answer == "y":
+        correctDrink = find_minimizing(get_beverages(),
+                           lambda other: LD.distance(other["name"], drink)
+                                         -(0.5 if drink in other["name"] else 0))
+        correctName = correctDrink["name"]
+        if y_or_n_pred("Did you mean {}".format(correctName), False):
             order_drink(correctName)
     else:
         print(r.text)
