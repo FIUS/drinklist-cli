@@ -6,6 +6,7 @@ let
   python-requirements = ps : with ps; [
     numpy
     requests
+    appdirs
   ];
   python-package = (python3.withPackages python-requirements);
 in
