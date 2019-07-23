@@ -17,40 +17,43 @@ import requests
 import json
 import getpass
 import pathlib
-import config
+import parameter_store
 from ppformat import pp
 import ppformat
 import sys
 import levenshtein as LD
 import copy
+import appdirs
 from utils import y_or_n_pred, find_minimizing
 
 cfg = None
+cache = None
 
 def get_login_token():
-    global cfg
+    """Get the login token"""
+    global cache
     refresh_token()
-    return cfg['token']
+    return cache['token']
 
 def refresh_token():
-    global cfg
+    """Fetch a new login token"""
+    global cfg, cache
     response = requests.post(cfg['url'] + "/login", data={'password': cfg['pw']})
     if response.status_code == 403:
         print("Failed to get login token: wrong password.", file=sys.stderr)
-        cfg.reset_config_parameter('pw')
+        cfg.reset_parameter('pw')
         refresh_token()
         return
     if not response.ok:
         print("Failed to get token: " + str(response.status_code) + ": " + r.text, file=sys.stderr)
         sys.exit(1)
     json_result = json.loads(response.text)
-    cfg['token'] = json_result[u'token']
-    cfg.write_config()
-
+    cache['token'] = json_result[u'token']
 
 def get(suburl, retry=True):
-    global cfg
-    r = requests.get(cfg["url"] + suburl, headers={'X-Auth-Token': cfg['token']})
+    """HTTP GET the given API suburl and parse the result as json"""
+    global cfg, cache
+    r = requests.get(cfg["url"] + suburl, headers={'X-Auth-Token': cache['token']})
     if r.status_code == 403 and retry:
         refresh_token()
         return get(suburl, False)
@@ -59,12 +62,15 @@ def get(suburl, retry=True):
     return json.loads(r.text)
 
 def get_beverages():
+    """Get available beverages"""
     return get("/beverages")
 
 def get_users():
+    """Get all users"""
     return get("/users")
 
 def expand_alias(drink):
+    """Replace alias drink names by their real names"""
     aliases = cfg["aliases"]
     if drink in aliases.keys():
         return aliases[drink]
@@ -72,18 +78,25 @@ def expand_alias(drink):
         return drink
 
 def add_alias(alias, drink):
+    """Add alias as an alias for drink"""
     cfg["aliases"][alias] = drink
     cfg.write_config()
+
 def del_alias(alias):
+    """Remove the alias alias"""
     cfg["aliases"].pop(alias)
     cfg.write_config()
+
 def get_aliases():
+    """Get all aliases"""
     return cfg["aliases"]
+
 def order_drink(drink, retry=True):
-    global cfg
+    """Order the drink drink."""
+    global cfg, cache
     drink = expand_alias(drink)
     r = requests.post(cfg["url"] + "/orders",
-                      headers={'X-Auth-Token': cfg['token']},
+                      headers={'X-Auth-Token': cache['token']},
                       params={'user': cfg['user'], 'beverage': drink})
     if r.status_code == 403 and retry:
         refresh_token()
@@ -111,19 +124,28 @@ if __name__ == '__main__':
     parent_parser.add_argument('-columns', type=str, nargs='+', default=None, help='The columns to show (if applicable)')
     parent_parser.add_argument('-sort-descending', action='store_true', help='Sort items descending')
 
-    cfg = config.Config(pathlib.Path("~/.drinklist").expanduser())
-    cfg.add_config_parameter('url', lambda: "https://fius.informatik.uni-stuttgart.de/drinklist/api",
-                             help='The API url of the drinklist', parameter='--url')
-    cfg.add_config_parameter('pw', lambda: getpass.getpass(),
-                             help='The drinklist password')
-    cfg.add_config_parameter('token', lambda: get_login_token(),
-                             help='The login token to use.')
-    cfg.add_config_parameter('user', lambda: input("Username: "),
-                             help='Your drinklist username')
-    cfg.add_config_parameter('aliases', lambda: {},
-                             help='The aliases defined for drinks',
-                             non_cmd=True)
-    cfg.add_args(parent_parser)
+    cfg = parameter_store.ParameterStore(
+        [pathlib.Path(appdirs.user_config_dir("drinklist_cli", "FIUS")).joinpath("config.json"),
+         pathlib.Path("~/.drinklist").expanduser()],
+        "config_file",
+        "The config file to use")
+    cache = parameter_store.ParameterStore(
+        [pathlib.Path(appdirs.user_cache_dir("drinklist_cli", "FIUS")).joinpath("cache.json")],
+        "cache_file",
+        "The cache file to use")
+    cfg.add_parameter('url', lambda: "https://fius.informatik.uni-stuttgart.de/drinklist/api",
+                      help='The API url of the drinklist', parameter='--url')
+    cfg.add_parameter('pw', lambda: getpass.getpass(),
+                      help='The drinklist password')
+    cfg.add_parameter('user', lambda: input("Username: "),
+                      help='Your drinklist username')
+    cfg.add_parameter('aliases', lambda: {},
+                      help='The aliases defined for drinks',
+                      non_cmd=True)
+    cache.add_parameter('token', lambda: get_login_token(),
+                        help='The login token to use.')
+    cfg.init_argparse_parser(parent_parser)
+    cache.init_argparse_parser(parent_parser)
 
     parser = argparse.ArgumentParser(parents = [copy.deepcopy(parent_parser)])
 
@@ -183,7 +205,8 @@ nargs='+')
             if args.__dict__[arg] != default:
               args.__dict__[orig] = args.__dict__[arg]
 
-    cfg.parse_args(args)
+    cfg.parse_argparse_results(args)
+    cache.parse_argparse_results(args)
 
     formatter = None
     if args.format == 'json':
