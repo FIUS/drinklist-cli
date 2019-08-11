@@ -11,12 +11,12 @@ source=("https://github.com/FIUS/drinklist-cli/archive/master.tar.gz")
 sha256sums=('cb5bfac7835ea157c3ad07712fca5460075fd3ad47346d16cdbcc1856ca8aedb')
 
 build() {
-	cd "$srcdir/$pkgname-$pkgver"
+    cd "$srcdir/$pkgname-$pkgver"
     ./build.sh
 }
 
 package() {
-	cd "$srcdir/$pkgname-$pkgver"
+    cd "$srcdir/$pkgname-$pkgver"
     mkdir -p $pkgdir/usr/bin
     cp ./drinklist $pkgdir/usr/bin/
     echo '#!/bin/bash' > $pkgdir/usr/bin/drink
