@@ -24,7 +24,7 @@ import sys
 import levenshtein as LD
 import copy
 import appdirs
-from utils import y_or_n_pred, find_minimizing
+from utils import y_or_n_pred, find_minimizing_with_rating
 
 cfg = None
 cache = None
@@ -119,9 +119,14 @@ def order_drink(drink, retry=True):
             print(str(r.status_code) + ": " + r.text, file=sys.stderr)
             sys.exit(1)
 
-        correctDrink = find_minimizing(get_beverages(),
-                           lambda other: LD.distance(other["name"], drink)
-                                         -(0.5 if drink in other["name"] else 0))
+        def rating_fn(other):
+            ld = LD.generalized_distance(drink, other["name"],
+                                         5, 10,
+                                         lambda x,y: 10 if x.lower()!=y.lower() else 1,
+                                         1)
+            return (ld, len(other))
+
+        (correctDrink, rating) = find_minimizing_with_rating(get_beverages(), rating_fn)
         correctName = correctDrink["name"]
         if y_or_n_pred("Did you mean {}".format(correctName), False):
             order_drink(correctName)
