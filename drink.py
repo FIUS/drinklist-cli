@@ -128,7 +128,9 @@ def order_drink(drink, retry=True):
 
         (correctDrink, rating) = find_minimizing_with_rating(get_beverages(), rating_fn)
         correctName = correctDrink["name"]
-        if y_or_n_pred("Did you mean {}".format(correctName), False):
+
+        if rating <= (len(correctName), len(drink)) or y_or_n_pred("Did you mean {}".format(correctName), False):
+            print("Corrected {} to {}.".format(drink, correctName))
             order_drink(correctName)
     else:
         print(r.text)
