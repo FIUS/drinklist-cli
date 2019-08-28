@@ -91,6 +91,18 @@ def get_aliases():
     """Get all aliases"""
     return cfg["aliases"]
 
+def undo():
+    """Delete the last drink ordered"""
+    order = get("/orders/"+cfg["user"])[0] # assumes result is ordered by timestamp
+    r = requests.delete(cfg["url"] + "/orders/" + order["id"],
+                        headers={'X-Auth-Token': cache['token']})
+    if r.ok:
+        print("Order of {} for {} deleted. (Response: {})"
+              .format(order["reason"], order["user"],
+                      r.text))
+    else:
+        print("Error")
+
 def order_drink(drink, retry=True):
     """Order the drink drink."""
     global cfg, cache
@@ -192,6 +204,8 @@ nargs='+')
     alias_define_parser.add_argument('alias', type=str, help='The alias to add')
     alias_define_parser.add_argument('drink', type=str, help='The drink the alias should point to')
 
+    commands.add_parser('undo', help="Undo the last drink ordered for user")
+
     commands.add_parser('license', help='Show the license for this program')
 
     help_parser = commands.add_parser('help', help='Show this help.')
@@ -277,6 +291,8 @@ nargs='+')
         formatter(get_users())
     elif args.command == 'refresh_token':
         refresh_token()
+    elif args.command == 'undo':
+        undo()
     elif args.command == 'alias':
         if args.aliascmd == 'list':
             formatter(get_aliases())
