@@ -37,12 +37,12 @@ def y_or_n_pred(question, default=None):
     else:
         return default
 
-def find_minimizing(lst, rating_fn):
+def find_minimizing_with_rating(lst, rating_fn):
     """Find the element in lst minimizing rating_fn(elememt).
 
-    Returns the element of lst.
+    Returns a pair of the element of lst and its rating.
     When multiple elements minimizing the rating exist,
-    returns the first such element.
+    returns a pair of the first such element and its rating
 
     Parameters:
     lst       -- The list of elements
@@ -53,4 +53,18 @@ def find_minimizing(lst, rating_fn):
         rating = rating_fn(el)
         if min_rating is None or rating < min_rating:
             (min_val, min_rating) = (el, rating)
-    return min_val
+    return (min_val, min_rating)
+
+def find_minimizing(lst, rating_fn):
+    """Find the element in lst minimizing rating_fn(elememt).
+
+    Returns the element of lst.
+    When multiple elements minimizing the rating exist,
+    returns the first such element
+
+    Parameters:
+    lst       -- The list of elements
+    rating_fn -- The rating function. Assigns a value that can be compared by '<'
+    """
+    (res, _) = find_minimizing_with_rating(lst, rating_fn)
+    return res
