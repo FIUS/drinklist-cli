@@ -17,7 +17,14 @@ packages/PKGBUILD: package_templates/PKGBUILD.template $(SRC_FILES)
 	sed "s|%%TARBALL_URL%%|$(TARBALL_URL)|;s|%%TARBALL_SHA256SUM%%|$(TARBALL_SHA256SUM)|" $< > $@
 
 packages/drinklist: $(SRC_FILES)
-	bash ./build.sh
+	mkdir -p packages
+	cp src/drink.py __main__.py
+	zip drinklist.zip __main__.py src/ppformat.py src/levenshtein.py src/parameter_store.py src/utils.py
+	echo "#!/usr/bin/env python3" > packages/drinklist
+	cat drinklist.zip >> packages/drinklist
+	chmod +x packages/drinklist
+	rm __main__.py
+	rm drinklist.zip
 
 $(DEB_PACKAGE_NAME).deb: package_templates/DEBIAN_control.template packages/drinklist
 	mkdir -p $(DEB_PACKAGE_NAME)/DEBIAN
