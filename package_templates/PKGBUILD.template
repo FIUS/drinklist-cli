@@ -7,8 +7,8 @@ arch=('any')
 url="https://github.com/FIUS/drinklist-cli"
 license=('GPL')
 depends=(python python-requests python-numpy python-appdirs)
-source=("https://github.com/FIUS/drinklist-cli/archive/master.tar.gz")
-sha256sums=('cb5bfac7835ea157c3ad07712fca5460075fd3ad47346d16cdbcc1856ca8aedb')
+source=("%%TARBALL_URL%%")
+sha256sums=('%%TARBALL_SHA256SUM%%')
 
 build() {
     cd "$srcdir/$pkgname-$pkgver"
