@@ -27,10 +27,12 @@ stdenvNoCC.mkDerivation rec {
    installPhase = ''
      mkdir -p $out/bin
      mkdir -p $out/opt
-     for file in ./*
+     for file in ./src/*
      do
        cp -r $file $out/opt/
      done
+     cp LICENSE $out/opt/LICENSE
+     cp COPYING $out/opt/COPYING
      makeWrapper $out/opt/drink.py $out/bin/drinklist
      makeWrapper $out/opt/drink.py $out/bin/drink --add-flags drink
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-cp drink.py __main__.py
-zip drinklist.zip __main__.py ppformat.py levenshtein.py parameter_store.py utils.py
+cp src/drink.py __main__.py
+zip drinklist.zip __main__.py src/ppformat.py src/levenshtein.py src/parameter_store.py src/utils.py
 echo "#!/usr/bin/env python3" > drinklist
 cat drinklist.zip >> drinklist
 chmod +x drinklist
