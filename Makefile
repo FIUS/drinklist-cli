@@ -1,3 +1,5 @@
+PY_SRC_FILES=$(wildcard src/*.py)
+SH_SRC_FILES=$(wildcard src/*.sh)
 SRC_FILES=$(wildcard src/*.py) $(wildcard src/*.sh)
 GIT_REV=$(shell git rev-parse HEAD)
 TARBALL_URL=https://github.com/FIUS/drinklist-cli/archive/$(GIT_REV).tar.gz
@@ -19,7 +21,7 @@ packages/PKGBUILD: package_templates/PKGBUILD.template $(SRC_FILES)
 packages/drinklist: $(SRC_FILES)
 	mkdir -p packages
 	cp src/drink.py __main__.py
-	zip drinklist.zip __main__.py src/ppformat.py src/levenshtein.py src/parameter_store.py src/utils.py
+	zip drinklist.zip __main__.py $(filter-out src/drink.py, $(PY_SRC_FILES))
 	echo "#!/usr/bin/env python3" > packages/drinklist
 	cat drinklist.zip >> packages/drinklist
 	chmod +x packages/drinklist
