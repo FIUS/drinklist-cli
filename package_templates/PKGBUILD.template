@@ -1,7 +1,7 @@
 # Maintainer: Marcial Gaißert <drinklist-cli@gaisseml.de>
 pkgname=drinklist-cli
-pkgver=master
-pkgrel=2
+pkgver=%%GIT_REV%%
+pkgrel=1
 pkgdesc="A CLI for the FIUS drinklist"
 arch=('any')
 url="https://github.com/FIUS/drinklist-cli"
@@ -12,7 +12,7 @@ sha256sums=('%%TARBALL_SHA256SUM%%')
 
 build() {
     cd "$srcdir/$pkgname-$pkgver"
-    ./build.sh
+    make packages/drinklist
 }
 
 package() {
