@@ -1,8 +1,47 @@
 # Drinklist CLI
 
+A CLI for [the FIUS Drinklist](https://github.com/FIUS/drinklist).
+
+## Installation
+Note: A GitHub Releases page serving the current builds is planned but not yet there.
+
+### NixOS
+#### NUR (recommended)
+The drinklist-cli is packaged in @marzipankaiser's [NUR](https://github.com/nix-community/NUR/) repository (i.e. as `nur.repos.marzipankaiser.drinklist-cli`).
+
+To install globally, add the following to your `configuration.nix`:
+```nix
+# Set up NUR
+nixpkgs.config.packageOverrides = pkgs: {
+    nur = import (builtins.fetchTarball "https://github.com/nix-community/NUR/archive/master.tar.gz") {
+      inherit pkgs;
+    };
+};
+```
+and then install `nur.repos.marzipankaiser.drinklist-cli`.
+
+### ArchLinux
+#### Using `PKGBUILD`
+Run `make packages/PKGBUILD` to generate a `PKGBUILD` for the current git commit.
+This can be used to build an archlinux package.
+
+#### Generating a package
+Run `make packages/drinklist-cli-<GIT_REV>-1-any.pkg.tar.gz` 
+(Replacing `<GIT_REV>` with the current git commit rev)
+and then install the resulting package.
+
+### Debian (experimental, untested)
+Run `make packages/drinklist-cli_0.1-1.deb`. This generates a Debian package that can be installed using e.g. `apt`.
+
+### Other Linux distributions
+#### Without using a package manager
+Run `make install`.
+
+## Help
+
 CLI for the [Drinklist](http://github.com/FIUS/drinklist)
 
-For help, run `src/drink.py help` (or, install a packaged version and run `drinklist help`)
+For help, run `src/drink.py help` or install a packaged version and run `drinklist help`
 
 ## Bash Completions
 The bash completions are in `src/bash_completions.sh`.
