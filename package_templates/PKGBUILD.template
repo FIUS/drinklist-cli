@@ -18,11 +18,11 @@ build() {
 package() {
     cd "$srcdir/$pkgname-$pkgver"
     mkdir -p $pkgdir/usr/bin
-    cp ./drinklist $pkgdir/usr/bin/
+    cp ./packages/drinklist $pkgdir/usr/bin/
     echo '#!/bin/bash' > $pkgdir/usr/bin/drink
     echo 'drinklist drink "$@"' >> $pkgdir/usr/bin/drink
     chmod +x $pkgdir/usr/bin/drink
     mkdir -p $pkgdir/usr/share/bash-completion/completions
-    cp ./bash_completions.sh $pkgdir/usr/share/bash-completion/completions/drinklist
-    cp ./bash_completions.sh $pkgdir/usr/share/bash-completion/completions/drink
+    cp ./src/bash_completions.sh $pkgdir/usr/share/bash-completion/completions/drinklist
+    cp ./src/bash_completions.sh $pkgdir/usr/share/bash-completion/completions/drink
 }
