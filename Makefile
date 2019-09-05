@@ -14,11 +14,7 @@ all: packages/drinklist packages/PKGBUILD $(DEB_PACKAGE_NAME).deb
 clean:
 	rm -rf packages
 
-packages/PKGBUILD: package_templates/PKGBUILD.template $(SRC_FILES)
-	mkdir -p packages
-	sed "s|%%TARBALL_URL%%|$(TARBALL_URL)|;s|%%TARBALL_SHA256SUM%%|$(TARBALL_SHA256SUM)|" $< > $@
-
-packages/drinklist: $(SRC_FILES)
+packages/drinklist: $(SRC_FILES) # Builds a single standalone executable from the python files
 	mkdir -p packages
 	cp src/drink.py __main__.py
 	zip drinklist.zip __main__.py $(filter-out src/drink.py, $(PY_SRC_FILES))
@@ -28,16 +24,23 @@ packages/drinklist: $(SRC_FILES)
 	rm __main__.py
 	rm drinklist.zip
 
+install: packages/drinklist
+	mkdir -p $(DESTDIR)/usr/bin
+	cp ./packages/drinklist $(DESTDIR)/usr/bin/drinklist
+	echo '#!/bin/bash' > $(DESTDIR)/usr/bin/drink
+	echo 'drinklist drink "$@"' >> $(DESTDIR)/usr/bin/drink
+	chmod +x $(DESTDIR)/usr/bin/drink
+	mkdir -p $(DESTDIR)/usr/share/bash-completion/completions
+	cp ./src/bash_completions.sh $(DESTDIR)/usr/share/bash-completion/completions/drinklist
+	cp ./src/bash_completions.sh $(DESTDIR)/usr/share/bash-completion/completions/drink
+
+packages/PKGBUILD: package_templates/PKGBUILD.template $(SRC_FILES)
+	mkdir -p packages
+	sed "s|%%TARBALL_URL%%|$(TARBALL_URL)|;s|%%TARBALL_SHA256SUM%%|$(TARBALL_SHA256SUM)|" $< > $@
+
 $(DEB_PACKAGE_NAME).deb: package_templates/DEBIAN_control.template packages/drinklist
 	mkdir -p $(DEB_PACKAGE_NAME)/DEBIAN
 	sed "s|%%VERSION%%|$(VERSION)|" $< > $(DEB_PACKAGE_NAME)/DEBIAN/control
-	mkdir -p $(DEB_PACKAGE_NAME)/usr/bin
-	cp ./packages/drinklist $(DEB_PACKAGE_NAME)/usr/bin/drinklist
-	echo '#!/bin/bash' > $(DEB_PACKAGE_NAME)/usr/bin/drink
-	echo 'drinklist drink "$@"' >> $(DEB_PACKAGE_NAME)/usr/bin/drink
-	chmod +x $(DEB_PACKAGE_NAME)/usr/bin/drink
-	mkdir -p $(DEB_PACKAGE_NAME)/usr/share/bash-completion/completions
-	cp ./src/bash_completions.sh $(DEB_PACKAGE_NAME)/usr/share/bash-completion/completions/drinklist
-	cp ./src/bash_completions.sh $(DEB_PACKAGE_NAME)/usr/share/bash-completion/completions/drink
+	$(MAKE) install DESTDIR=$(DEB_PACKAGE_NAME)
 	dpkg-deb --build $(DEB_PACKAGE_NAME)
 	rm -rf $(DEB_PACKAGE_NAME)
