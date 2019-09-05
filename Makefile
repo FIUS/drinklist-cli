@@ -6,10 +6,11 @@ TARBALL_URL=https://github.com/FIUS/drinklist-cli/archive/$(GIT_REV).tar.gz
 TARBALL_SHA256SUM=$(shell curl -L "$(TARBALL_URL)" | sha256sum | head -c 64)# This is a hack, but tarballs sadly don't seem to be deterministic
 VERSION=0.1
 DEB_PACKAGE_NAME=packages/drinklist-cli_$(VERSION)-1
+ARCH_PACKAGE_NAME=packages/drinklist-cli-$(GIT_REV)-1-any.pkg.tar.gz
 
 .PHONY: clean
 
-all: packages/drinklist packages/PKGBUILD $(DEB_PACKAGE_NAME).deb
+all: packages/drinklist packages/PKGBUILD $(ARCH_PACKAGE_NAME) $(DEB_PACKAGE_NAME).deb
 
 clean:
 	rm -rf packages
@@ -39,6 +40,11 @@ packages/PKGBUILD: package_templates/PKGBUILD.template $(SRC_FILES)
 	sed "s|%%TARBALL_URL%%|$(TARBALL_URL)|;s|%%TARBALL_SHA256SUM%%|$(TARBALL_SHA256SUM)|;s|%%GIT_REV%%|$(GIT_REV)|" $< > $@
 
 $(ARCH_PACKAGE_NAME): packages/PKGBUILD # ugly since downloading source from github but works TODO
+	curl -L "$(TARBALL_URL)" > ./packages/$(GIT_REV).tar.gz # manually download tarball since this fails on non-archlinux
+	cd packages && makepkg -d
+	rm -rf packages/src
+	rm -rf packages/pkg
+	rm packages/$(GIT_REV).tar.gz
 
 $(DEB_PACKAGE_NAME).deb: package_templates/DEBIAN_control.template packages/drinklist
 	mkdir -p $(DEB_PACKAGE_NAME)/DEBIAN
