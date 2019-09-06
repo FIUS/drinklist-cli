@@ -21,6 +21,7 @@ nixpkgs.config.packageOverrides = pkgs: {
 and then install `nur.repos.marzipankaiser.drinklist-cli`.
 
 ### ArchLinux
+Run `make arch-install` to generate a `PKGBUILD`, generate a package and install it.
 #### Using pre-built package
 There is a pre-built ArchLinux package [here](https://github.com/FIUS/drinklist-cli/releases/download/v0.1-alpha/drinklist-cli-c6a57961530af57e124f77d9d755572821fdcaaf-1-any.pkg.tar.gz)
 #### Using `PKGBUILD`
