@@ -18,7 +18,7 @@ clean:
 packages/drinklist: $(SRC_FILES) # Builds a single standalone executable from the python files
 	mkdir -p packages
 	cp src/drink.py __main__.py
-	zip drinklist.zip __main__.py $(filter-out src/drink.py, $(PY_SRC_FILES))
+	zip -j drinklist.zip __main__.py $(filter-out src/drink.py, $(PY_SRC_FILES))
 	echo "#!/usr/bin/env python3" > packages/drinklist
 	cat drinklist.zip >> packages/drinklist
 	chmod +x packages/drinklist
