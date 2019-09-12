@@ -36,9 +36,9 @@ install: packages/drinklist
 	cp ./src/bash_completions.sh $(DESTDIR)/usr/share/bash-completion/completions/drink
 
 arch-install: packages/PKGBUILD
-	makepkg -S
-	makepkg
-	makepkg --install
+	cd packages && makepkg -S
+	cd packages && makepkg
+	cd packages && makepkg --install
 
 packages/PKGBUILD: package_templates/PKGBUILD.template $(SRC_FILES)
 	mkdir -p packages
