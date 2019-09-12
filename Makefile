@@ -35,6 +35,11 @@ install: packages/drinklist
 	cp ./src/bash_completions.sh $(DESTDIR)/usr/share/bash-completion/completions/drinklist
 	cp ./src/bash_completions.sh $(DESTDIR)/usr/share/bash-completion/completions/drink
 
+arch-install: packages/PKGBUILD
+	cd packages && makepkg -S
+	cd packages && makepkg
+	cd packages && makepkg --install
+
 packages/PKGBUILD: package_templates/PKGBUILD.template $(SRC_FILES)
 	mkdir -p packages
 	sed "s|%%TARBALL_URL%%|$(TARBALL_URL)|;s|%%TARBALL_SHA256SUM%%|$(TARBALL_SHA256SUM)|;s|%%GIT_REV%%|$(GIT_REV)|" $< > $@
