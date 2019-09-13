@@ -28,8 +28,7 @@ packages/drinklist: $(SRC_FILES) # Builds a single standalone executable from th
 install: packages/drinklist
 	mkdir -p $(DESTDIR)/usr/bin
 	cp ./packages/drinklist $(DESTDIR)/usr/bin/drinklist
-	echo '#!/bin/bash' > $(DESTDIR)/usr/bin/drink
-	echo 'drinklist drink "$@"' >> $(DESTDIR)/usr/bin/drink
+	cp ./drink_alias.sh $(DESTDIR)/usr/bin/drink
 	chmod +x $(DESTDIR)/usr/bin/drink
 	mkdir -p $(DESTDIR)/usr/share/bash-completion/completions
 	cp ./src/bash_completions.sh $(DESTDIR)/usr/share/bash-completion/completions/drinklist
