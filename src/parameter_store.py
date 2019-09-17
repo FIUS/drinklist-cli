@@ -107,7 +107,7 @@ class ParameterStore(object):
         args -- the result of argparse
         """
         if self.path_parameter in args.__dict__ and args.__dict__[self.path_parameter] is not None:
-            self.path = pathlib.Path(args.__dict__[self.path_parameter]).expanduser()
+            self.paths = [pathlib.Path(args.__dict__[self.path_parameter]).expanduser()]
             self.load()
         for cp in self.params.values():
             if cp['name'] in args.__dict__ and args.__dict__[cp['name']] is not None:
