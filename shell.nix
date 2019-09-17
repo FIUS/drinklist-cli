@@ -1,15 +1,10 @@
 { pkgs ? import <nixpkgs> {}
 , ...
 }:
-with pkgs;
 let
-  python-requirements = ps : with ps; [
-    numpy
-    requests
-    appdirs
-  ];
-  python-package = (python3.withPackages python-requirements);
+  deps = import ./dependencies.nix { inherit pkgs; };
 in
+with pkgs;
 stdenvNoCC.mkDerivation rec {
    name = "drinklist-cli";
 
@@ -20,12 +15,6 @@ stdenvNoCC.mkDerivation rec {
    };
 
    dontBuild = true;
-   nativeBuildInputs = [ makeWrapper ];
-   buildInputs = [
-     python-package
-     # for deb packaging
-     dpkg
-     # for arch packaging
-     pacman libarchive fakeroot
-   ];
+   nativeBuildInputs = deps.nativeBuildDeps;
+   buildInputs = deps.packageDeps ++ deps.buildDeps ++ deps.packageDeps;
 }

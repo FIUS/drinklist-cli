@@ -1,0 +1,19 @@
+language: nix
+nix: 2.3
+services:
+  - docker
+install:
+  - nix-build ./dockers.nix -A build-container
+  - docker load < ./result
+script:
+  - docker run -u $(id -u) -v $(pwd):/build build-container bash -c "mkdir /build/tmp && cd /build && CURL_CA_BUNDLE='/etc/ssl/certs/ca-bundle.crt' TMP='/build/tmp' TMPDIR='/build/tmp' make all && rm -rf /build/tmp"
+deploy:
+  provider: releases
+  api_key:
+    secure: A8UyD9OCK/Vi+hxa/OftYiI5w55SCqcBS34yXOcb+sMqPuMWu732lhhJ0uNFmTfK4a6aO717hdcIpC7aa/ERPOBpGmMbGXLoa1tdcfNPaYop497GjkimhMplC1f/rWkoHQR4lLEwUMWETavtkmKJ6un6Dc3VKIk7asFcPVSTlCqlzkr2vDVLPuqHRj79FAOYiYc2AH5UyrJo5G4oOfzT+eHKCj7f7OwkU3EZEftMTAzV2vHT9cIkz4LBBKkUW7T+5XQLctoHFDGeCkRUpfuNyIRTVK8XQRRv2bQekc8XSKT+U5VVmdMMHqjNgMvql620bKkzlvDkt/bLaTZGdhPCYUy0bPAfTdxHWoFPMAJAZxcWzqCbOtPviwA9Zx2Li55wV8ZVjOPrvYVrKJPP2HxVxxqjy2ofGNpGjwHCUZAnUZRAhLQT8ppIhNvdWcQdBzO4opk5QeTIoH3nnJYxs8PgKprLP2AAdWlCB8/XhmQMs732bYmptmZxsYYd7QDfLLqY15ZmavqC3iB88wFYNcbK+OBgVtjl3AYp7yX8kp6Jo38If7eT7coEa9gosj8LN60IWdo7wzh1YV/e5Bp1CSLVnCokYqLluZuwEFbJWoB5ECXOeirzkgb8KLZz3zDtyar8IdQyYo703dn+IMGHWNKXo2eyOj96CY0vDbLtp/3CyHA=
+  file_glob: true
+  file: packages/*
+  skip_cleanup: true
+  on:
+    branch: master
+    repo: FIUS/drinklist-cli
