@@ -17,8 +17,8 @@ stdenvNoCC.mkDerivation rec {
    src = ./.;
 
    dontBuild = true;
-   nativeBuildInputs = deps.nativeBuildDeps;
-   buildInputs = deps.buildDeps;
+   nativeBuildInputs = deps.nativeBuildInputs;
+   buildInputs = deps.buildInputs;
    installPhase = ''
      mkdir -p $out/bin
      mkdir -p $out/opt

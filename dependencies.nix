@@ -1,14 +1,15 @@
 { pkgs, ... }:
 rec {
-  pythonPackage = pkgs.python3.withPackages (ps: with ps; [
+  pythonDeps = ps: with ps; [
     numpy
     requests
     appdirs
-  ]);
-  buildDeps = with pkgs; [
+  ];
+  pythonPackage = pkgs.python3.withPackages pythonDeps;
+  buildInputs = with pkgs; [
     pythonPackage
   ];
-  nativeBuildDeps = with pkgs; [
+  nativeBuildInputs = with pkgs; [
     makeWrapper
   ];
   baseSystem = with pkgs; [
@@ -25,7 +26,7 @@ rec {
     gawk
     gnutar
   ];
-  packageDeps = with pkgs; [
+  packagingDeps = with pkgs; [
     # general packaging
     binutils git zip
     # for deb packaging

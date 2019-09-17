@@ -1,5 +1,5 @@
 { pkgs ? import <nixpkgs> {}
-, buildImage ? pkgs.dockerTools.buildImage
+, buildLayeredImage ? pkgs.dockerTools.buildLayeredImage
 , ...
 }:
 let
@@ -7,8 +7,8 @@ let
 in
 rec {
   build-container = let
-    allDeps = deps.baseSystem ++ deps.packageDeps ++ deps.nativeBuildDeps ++ deps.buildDeps;
-  in buildImage {
+    allDeps = deps.baseSystem ++ deps.packagingDeps ++ deps.nativeBuildInputs ++ deps.buildInputs;
+  in buildLayeredImage {
     name = "build-container";
     tag = "latest";
     contents = allDeps;
