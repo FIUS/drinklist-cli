@@ -15,6 +15,6 @@ stdenvNoCC.mkDerivation rec {
    };
 
    dontBuild = true;
-   nativeBuildInputs = deps.nativeBuildDeps;
-   buildInputs = deps.packageDeps ++ deps.buildDeps ++ deps.packageDeps;
+   nativeBuildInputs = deps.nativeBuildInputs;
+   buildInputs = deps.packagingDeps ++ deps.buildInputs;
 }
