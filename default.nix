@@ -3,12 +3,7 @@
 }:
 with pkgs;
 let
-  python-requirements = ps : with ps; [
-    numpy
-    requests
-    appdirs
-  ];
-  python-package = (python3.withPackages python-requirements);
+  deps = import ./dependencies.nix { inherit pkgs; };
 in
 stdenvNoCC.mkDerivation rec {
    name = "drinklist-cli";
@@ -22,8 +17,8 @@ stdenvNoCC.mkDerivation rec {
    src = ./.;
 
    dontBuild = true;
-   nativeBuildInputs = [ makeWrapper ];
-   buildInputs = [ python-package ];
+   nativeBuildInputs = deps.nativeBuildDeps;
+   buildInputs = deps.buildDeps;
    installPhase = ''
      mkdir -p $out/bin
      mkdir -p $out/opt
