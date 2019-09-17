@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/FIUS/drinklist-cli.svg?branch=master)](https://travis-ci.org/FIUS/drinklist-cli)
+
 # Drinklist CLI
 
 A CLI for [the FIUS Drinklist](https://github.com/FIUS/drinklist).
