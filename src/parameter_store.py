@@ -51,6 +51,7 @@ class ParameterStore(object):
         for path in self.paths:
             if path.exists():
                 res_path = path
+                break
         if res_path is None:
             res_path = self.paths[0]
         res_path.parent.mkdir(0o700,True,True)
