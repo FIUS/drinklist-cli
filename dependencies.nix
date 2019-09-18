@@ -29,6 +29,8 @@ rec {
   packagingDeps = with pkgs; [
     # general packaging
     binutils git zip
+    # nix packaging
+    nix
     # for deb packaging
     dpkg
     # for arch packaging
