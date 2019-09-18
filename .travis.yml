@@ -1,14 +1,14 @@
 language: nix
 nix: 2.3
 services:
-  - docker
+- docker
 install:
-  - nix-build ./dockers.nix -A build-container
-  - docker load < ./result
+- nix-build ./dockers.nix -A build-container
+- docker load < ./result
 script:
-  - docker run -u $(id -u) -v $(pwd):/build build-container bash -c "mkdir /build/tmp && cd /build && CURL_CA_BUNDLE='/etc/ssl/certs/ca-bundle.crt' TMP='/build/tmp' TMPDIR='/build/tmp' make all && rm -rf /build/tmp"
+- docker run -u $(id -u) -v $(pwd):/build build-container bash -c "mkdir /build/tmp && cd /build && CURL_CA_BUNDLE='/etc/ssl/certs/ca-bundle.crt' TMP='/build/tmp' TMPDIR='/build/tmp' make all NIX_SHA256SUM='$(nix-prefetch-url --unpack https://github.com/FIUS/drinklist-cli/archive/$(git rev-parse HEAD).tar.gz)' && rm -rf /build/tmp"
 deploy:
-  provider: releases
+- provider: releases
   api_key:
     secure: A8UyD9OCK/Vi+hxa/OftYiI5w55SCqcBS34yXOcb+sMqPuMWu732lhhJ0uNFmTfK4a6aO717hdcIpC7aa/ERPOBpGmMbGXLoa1tdcfNPaYop497GjkimhMplC1f/rWkoHQR4lLEwUMWETavtkmKJ6un6Dc3VKIk7asFcPVSTlCqlzkr2vDVLPuqHRj79FAOYiYc2AH5UyrJo5G4oOfzT+eHKCj7f7OwkU3EZEftMTAzV2vHT9cIkz4LBBKkUW7T+5XQLctoHFDGeCkRUpfuNyIRTVK8XQRRv2bQekc8XSKT+U5VVmdMMHqjNgMvql620bKkzlvDkt/bLaTZGdhPCYUy0bPAfTdxHWoFPMAJAZxcWzqCbOtPviwA9Zx2Li55wV8ZVjOPrvYVrKJPP2HxVxxqjy2ofGNpGjwHCUZAnUZRAhLQT8ppIhNvdWcQdBzO4opk5QeTIoH3nnJYxs8PgKprLP2AAdWlCB8/XhmQMs732bYmptmZxsYYd7QDfLLqY15ZmavqC3iB88wFYNcbK+OBgVtjl3AYp7yX8kp6Jo38If7eT7coEa9gosj8LN60IWdo7wzh1YV/e5Bp1CSLVnCokYqLluZuwEFbJWoB5ECXOeirzkgb8KLZz3zDtyar8IdQyYo703dn+IMGHWNKXo2eyOj96CY0vDbLtp/3CyHA=
   file_glob: true
@@ -17,3 +17,12 @@ deploy:
   on:
     branch: master
     repo: FIUS/drinklist-cli
+- provider: script
+  skip_cleanup: true
+  script: bash push-nur.sh
+  on:
+    branch: master
+    repo: FIUS/drinklist-cli
+env:
+  global:
+    secure: ErDG5USnlh6ymbW3gSBqsHj97CsnUE/yRyjdrJCq8gs1YUe8rd7VUiDQ/uKahXO6XWjQIAo2PAyIWnGRMYWEofAff7RSI+iAcGk5pSc/COlzZ2UeD1y7/qMR99XALkV5LtqGuNTvc+0YzZfCgddZoLwh5wjl0zvfA/fX9y7SWtYC0qD4h+cqsB+gvg+IXQjjs6DmCmEFDRT1knd7CTlfAgGGgvGQXvmnAuQ9BYj7Nc/St+lGGXW1xSWhzTbmhwH3yKzA81vt4MlerLInJf5RquywaWNmbvLiQ/VM0ElzIscR9Qb8/cW41NxDnMBkYX/FN1KweK6p6kaxvT39FqclYlvyiYVzJ+5HmHNgqNeL10ZlZz+mF9hALJuTHPol9E5y5rJYcKUPCYYNugAqZIY6Mv8+ecZmdRG+wPkHv1PaNk3B4WXIBk8+sz44XAP9YBWHk06n/ypEOesbjWTUqkWZPVJGm6qvB+GUT6yeIK4JMSsvIbCronyAVF12jBYJGU7+oStRbHRjH2Et18xGuTCTLZpHJanSqKJzrz7oNSinfEQjzDl2zKhOGJ3KG848bdLZxzU2LSVFIGDwfl6eeeYJg0ev61OMSiWHOCqhY8dZs1scr6cB55wayJtAu0I4fZvH2qiz8ZHNvI4Ory07dUw0TxoCHM3A9aFbgS9gf+55G7o=

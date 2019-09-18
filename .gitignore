@@ -7,6 +7,9 @@ drinklist
 # Built NixOS package
 result
 
+# NUR checkout
+nur
+
 # Created by https://www.gitignore.io/api/python
 # Edit at https://www.gitignore.io/?templates=python
 
