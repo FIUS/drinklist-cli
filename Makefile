@@ -35,9 +35,9 @@ install: packages/drinklist
 	cp ./src/bash_completions.sh $(DESTDIR)/usr/share/bash-completion/completions/drinklist
 	cp ./src/bash_completions.sh $(DESTDIR)/usr/share/bash-completion/completions/drink
 	mkdir -p $(DESTDIR)/usr/share/zsh/site-functions
-	cp ./src/zsh_completion_helpers.zsh $out/share/zsh/site-functions/_drinklist_completion_helpers
-	cp ./src/zsh_completion_drinklist.zsh $out/share/zsh/site-functions/_drinklist
-	cp ./src/zsh_completion_drink.zsh $out/share/zsh/site-functions/_drink
+	cp ./src/zsh_completion_helpers.zsh $(DESTDIR)/usr/share/zsh/site-functions/_drinklist_completion_helpers
+	cp ./src/zsh_completion_drinklist.zsh $(DESTDIR)/usr/share/zsh/site-functions/_drinklist
+	cp ./src/zsh_completion_drink.zsh $(DESTDIR)/usr/share/zsh/site-functions/_drink
 
 packages/default.nix: package_templates/default.nix
 	mkdir -p packages
