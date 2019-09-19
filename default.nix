@@ -40,10 +40,8 @@ stdenvNoCC.mkDerivation rec {
 
      # Link zsh completion
      mkdir -p $out/share/zsh/site-functions
-     ln -s $out/opt/zsh_completions.zsh $out/share/zsh/site-functions/_drinklist
-     ln -s $out/opt/zsh_completions.zsh $out/share/zsh/site-functions/_drink
-     mkdir -p $out/share/zsh/vendor-completions
-     ln -s $out/opt/zsh_completions.zsh $out/share/zsh/vendor-completions/_drinklist
-     ln -s $out/opt/zsh_completions.zsh $out/share/zsh/vendor-completions/_drink
+     ln -s $out/opt/zsh_completion_drinklist.zsh $out/share/zsh/site-functions/_drinklist
+     ln -s $out/opt/zsh_completion_drink.zsh $out/share/zsh/site-functions/_drink
+     ln -s $out/opt/zsh_completion_helpers.zsh $out/share/zsh/site-functions/_drinklist_completion_helpers
    '';
 }

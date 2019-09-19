@@ -1,0 +1,2 @@
+#compdef drinklist
+_drinklist

@@ -1,6 +1,4 @@
-#compdef drinklist drink="drinklist drink"
-
-# zsh completion wrapper for drinklist-cli
+#autoload
 
 local -a _drinklist_global_args
 _drinklist_global_args=(
