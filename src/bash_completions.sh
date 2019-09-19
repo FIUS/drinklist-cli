@@ -7,7 +7,7 @@ _DRINKLIST_CACHE_DURATION="5" #In minutes
 
 _DRINKLIST_FLAGS=( "-h" "--help" "-format" "-sort-by" "-columns" "-sort-descending" "-config" "-url" "-token" "-user" )
 _DRINKLIST_FLAGS_WITH_ARGS=( "-format" "-sort-by" "-columns" "-config" "-url" "-token" "-user" )
-_DRINKLIST_COMMANDS=( "list" "drink" "order" "users" "balance" "history" "refresh_token" "alias" "license" "help" )
+_DRINKLIST_COMMANDS=( "list" "drink" "order" "users" "balance" "history" "refresh_token" "alias" "license" "help" "undo" )
 
 function _drinklist_check_cache {
   if ! [ -d $_DRINKLIST_CACHE_DIR ] ;then
