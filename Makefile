@@ -9,7 +9,7 @@ VERSION=0.2
 DEB_PACKAGE_NAME=packages/drinklist-cli_$(VERSION)-1
 ARCH_PACKAGE_NAME=packages/drinklist-cli-$(GIT_REV)-1-any.pkg.tar.gz
 
-.PHONY: clean
+.PHONY: clean all arch-package deb
 
 all: packages/drinklist packages/PKGBUILD $(ARCH_PACKAGE_NAME) $(DEB_PACKAGE_NAME).deb packages/default.nix
 
@@ -58,6 +58,7 @@ $(ARCH_PACKAGE_NAME): packages/PKGBUILD # ugly since downloading source from git
 	rm -rf packages/src
 	rm -rf packages/pkg
 	rm packages/$(GIT_REV).tar.gz
+arch-package: $(ARCH_PACKAGE_NAME)
 
 $(DEB_PACKAGE_NAME).deb: package_templates/DEBIAN_control.template packages/drinklist
 	mkdir -p $(DEB_PACKAGE_NAME)/DEBIAN
@@ -65,3 +66,4 @@ $(DEB_PACKAGE_NAME).deb: package_templates/DEBIAN_control.template packages/drin
 	$(MAKE) install DESTDIR=$(DEB_PACKAGE_NAME)
 	dpkg-deb --build $(DEB_PACKAGE_NAME)
 	rm -rf $(DEB_PACKAGE_NAME)
+deb: $(DEB_PACKAGE_NAME).deb
