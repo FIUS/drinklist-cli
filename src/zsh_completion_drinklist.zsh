@@ -1,2 +1,3 @@
 #compdef drinklist
+_drinklist_completion_helpers
 _drinklist
