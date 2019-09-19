@@ -44,9 +44,9 @@ packages/default.nix: package_templates/default.nix
 	sed "s|%%TARBALL_URL%%|$(TARBALL_URL)|;s|%%NIX_SHA256SUM%%|$(NIX_SHA256SUM)|;s|%%TARBALL_SHA256SUM%%|$(TARBALL_SHA256SUM)|;s|%%GIT_REV%%|$(GIT_REV)|" $< > $@
 
 arch-install: packages/PKGBUILD
-	cd packages && sudo makepkg -s
+	cd packages && makepkg -s
 	cd packages && makepkg
-	cd packages && sudo makepkg --install
+	cd packages && makepkg --install
 
 packages/PKGBUILD: package_templates/PKGBUILD.template $(SRC_FILES)
 	mkdir -p packages
