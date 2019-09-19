@@ -46,5 +46,13 @@ stdenvNoCC.mkDerivation rec {
      mkdir -p $out/share/bash-completion/completions
      ln -s $out/opt/bash_completions.sh $out/share/bash-completion/completions/drinklist
      ln -s $out/opt/bash_completions.sh $out/share/bash-completion/completions/drinklist.bash-completion
+
+     # Link zsh completion
+     mkdir -p $out/share/zsh/site-functions
+     ln -s $out/opt/zsh_completions.zsh $out/share/zsh/site-functions/_drinklist
+     ln -s $out/opt/zsh_completions.zsh $out/share/zsh/site-functions/_drink
+     mkdir -p $out/share/zsh/vendor-completions
+     ln -s $out/opt/zsh_completions.zsh $out/share/zsh/vendor-completions/_drinklist
+     ln -s $out/opt/zsh_completions.zsh $out/share/zsh/vendor-completions/_drink
    '';
 }
