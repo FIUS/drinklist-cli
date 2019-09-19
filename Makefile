@@ -5,7 +5,7 @@ GIT_REV=$(shell git rev-parse HEAD)
 TARBALL_URL=https://github.com/FIUS/drinklist-cli/archive/$(GIT_REV).tar.gz
 TARBALL_SHA256SUM=$(shell curl -L "$(TARBALL_URL)" | sha256sum | head -c 64)# This is a hack, but tarballs sadly don't seem to be deterministic
 NIX_SHA256SUM=$(shell nix-prefetch-url --unpack "$(TARBALL_URL)")
-VERSION=0.1
+VERSION=0.2
 DEB_PACKAGE_NAME=packages/drinklist-cli_$(VERSION)-1
 ARCH_PACKAGE_NAME=packages/drinklist-cli-$(GIT_REV)-1-any.pkg.tar.gz
 
