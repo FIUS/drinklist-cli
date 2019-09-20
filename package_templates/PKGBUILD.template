@@ -6,6 +6,7 @@ pkgdesc="A CLI for the FIUS drinklist"
 arch=('any')
 url="https://github.com/FIUS/drinklist-cli"
 license=('GPL')
+makedepends=(binutils git zip)
 depends=(python python-requests python-numpy python-appdirs)
 source=("%%TARBALL_URL%%")
 sha256sums=('%%TARBALL_SHA256SUM%%')
