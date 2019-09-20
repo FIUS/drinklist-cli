@@ -80,12 +80,12 @@ def expand_alias(drink):
 def add_alias(alias, drink):
     """Add alias as an alias for drink"""
     cfg["aliases"][alias] = drink
-    cfg.write_config()
+    cfg.dump()
 
 def del_alias(alias):
     """Remove the alias alias"""
     cfg["aliases"].pop(alias)
-    cfg.write_config()
+    cfg.dump()
 
 def get_aliases():
     """Get all aliases"""
