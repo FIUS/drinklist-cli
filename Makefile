@@ -45,7 +45,6 @@ packages/default.nix: package_templates/default.nix
 
 arch-install: packages/PKGBUILD
 	cd packages && makepkg -s
-	cd packages && makepkg
 	cd packages && makepkg --install
 
 packages/PKGBUILD: package_templates/PKGBUILD.template $(SRC_FILES)
