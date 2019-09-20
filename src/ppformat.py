@@ -30,6 +30,8 @@ def dimensionality(val):
         return 0
 
 def format_obj_table(val, columns):
+    if isinstance(val, dict):
+        return format_obj_table([{"key": k, "value": v} for (k,v) in val.items()], columns)
     return format_table(
         [[("{0:.2f}€".format(v[col]/100.0) if col in ['amount', 'price', 'balance'] else pp(v[col])) for col in columns]
          for v in val],
@@ -49,4 +51,6 @@ def pp(val):
                 return '\n'.join(pp(v) for v in val)
         elif d == 2:
             return format_table([[pp(cell) for cell in row] for row in val])
+    if isinstance(val, dict):
+        return pp([{"key": k, "value": v} for (k,v) in val.items()])
     return str(val)
