@@ -204,7 +204,7 @@ nargs='+')
                                              metavar='aliascmd',
                                              dest='aliascmd',
                                              description='The alias command')
-    alias_list_parser = alias_cmds.add_parser('list', help='List all defined aliases')
+    alias_list_parser = alias_cmds.add_parser('list', help='List all defined aliases', parents = [parent_parser])
     alias_delete_parser = alias_cmds.add_parser('delete', help='Remove all aliases')
     alias_delete_parser.add_argument('alias', type=str, help='The alias to delete')
     alias_define_parser = alias_cmds.add_parser('set', help='Add a new alias')
