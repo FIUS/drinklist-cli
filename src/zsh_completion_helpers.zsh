@@ -24,8 +24,9 @@ function _drinklist_arg_column {
         "name" "stock" "price"
         "balance"
         "id" "user" "reason" "amount" "beverage" "beverage_count" "timestamp"
+        "key" "value"
     )
-    _values "columns" $columns[@]
+    _values "Columns (Not context sensitive!)" $columns[@]
 }
 function _drinklist_arg_columns {
     _sequence -s " " _drinklist_arg_column
@@ -33,20 +34,32 @@ function _drinklist_arg_columns {
 function _drinklist_arg_users {
     local -a users
     users=("${(@f)$(drinklist users)}")
-    _values "users" "$users[@]"
+    _values "Users" "$users[@]"
 }
 function _drinklist_arg_drinks {
     local -a drinks
     local -a aliases
+
     drinks=("${(@f)$(drinklist list -columns name | tail +3 | sed 's/[[:blank:]]*$//')}")
-    aliases=() # todo
-    _values "drinks" "$drinks[@]" "$aliases[@]"
+
+    if [ "$(drinklist alias list)" = "Nothing." ]
+    then
+        aliases=()
+    else
+        aliases=("${(@f)$(drinklist alias list -f text -col key | tail +3 | sed 's/[[:blank:]]*$//')}")
+    fi
+
+    _values "Drinks" "$drinks[@]" "$aliases[@]"
 }
 function _drinklist_arg_aliases {
     local -a aliases
-    aliases=() # todo
-    # _values "aliases" "$aliases[@]"
-    _strings # for now
+    if [ "$(drinklist alias list)" = "Nothing." ]
+    then
+        _strings
+    else
+        aliases=("${(@f)$(drinklist alias list -f text -col key | tail +3 | sed 's/[[:blank:]]*$//')}")
+        _values "Defined aliases" "$aliases[@]"
+    fi
 }
 function _drinklist_commands {
     local -a commands
@@ -63,7 +76,7 @@ function _drinklist_commands {
         'license:Show license'
         'help:Show help'
     )
-    _describe 'command' commands
+    _describe 'Commands' commands
 }
 
 function _drinklist {
@@ -130,7 +143,7 @@ function _drinklist_alias_commands {
         "delete:Delte a defined alias"
         "set:Add a new alias"
     )
-    _describe "alias_commands" alias_commands
+    _describe "alias Subcommands" alias_commands
 }
 function _drinklist_alias {
     _arguments -C "(-h --help)"{-h,--help}'[Show help]' \
@@ -145,6 +158,7 @@ function _drinklist_alias {
 }
 function _drinklist_alias_list {
     _arguments -C "(-h --help)"{-h,--help}'[Show help]' \
+               $_drinklist_global_args[@] \
                "*::arg:->args"
 }
 function _drinklist_alias_delete {
@@ -170,7 +184,6 @@ function _drinklist_help {
     function _subcommands {
         case $line[1] in
             alias) _drinklist_alias_commands ;;
-            *) _values "test" "$line[1]" "$line[@]" "$line[*]"
         esac
     }
     _arguments -C "(-h --help)"{-h,--help}'[Show help]' \
