@@ -28,6 +28,7 @@ from utils import y_or_n_pred, find_minimizing_with_rating
 
 cfg = None
 cache = None
+interactive = True
 
 def get_login_token():
     """Get the login token"""
@@ -105,7 +106,7 @@ def undo():
 
 def order_drink(drink, retry=True):
     """Order the drink drink."""
-    global cfg, cache
+    global cfg, cache, interactive
     drink = expand_alias(drink)
     r = requests.post(cfg["url"] + "/orders",
                       headers={'X-Auth-Token': cache['token']},
@@ -129,9 +130,11 @@ def order_drink(drink, retry=True):
         (correctDrink, rating) = find_minimizing_with_rating(get_beverages(), rating_fn)
         correctName = correctDrink["name"]
 
-        if rating <= (len(correctName), len(drink)) or y_or_n_pred("Did you mean {}".format(correctName), False):
+        if rating <= (len(correctName), len(drink)) or (interactive and y_or_n_pred("Did you mean {}".format(correctName), False)):
             print("Corrected {} to {}.".format(drink, correctName))
             order_drink(correctName)
+        else:
+            print("Unknown beverage")
     else:
         print(r.text)
 
@@ -142,6 +145,7 @@ if __name__ == '__main__':
     parent_parser.add_argument('-sort-by', type=str, default=None, help='Sort the output by the given column (if possible)')
     parent_parser.add_argument('-columns', type=str, nargs='+', default=None, help='The columns to show (if applicable)')
     parent_parser.add_argument('-sort-descending', action='store_true', help='Sort items descending')
+    parent_parser.add_argument('-b', dest='noninteractive', action='store_true', help="Noninteractive mode. Will not ask the user anything.")
 
     cfg = parameter_store.ParameterStore(
         [pathlib.Path(appdirs.user_config_dir("drinklist_cli", "FIUS")).joinpath("config.json"),
@@ -156,7 +160,7 @@ if __name__ == '__main__':
                       help='The API url of the drinklist', parameter='--url')
     cfg.add_parameter('pw', lambda: getpass.getpass(),
                       help='The drinklist password')
-    cfg.add_parameter('user', lambda: input("Username: "),
+    cfg.add_parameter('user', lambda: (input("Username: ") if interactive else sys.exit(1)),
                       help='Your drinklist username')
     cfg.add_parameter('aliases', lambda: {},
                       help='The aliases defined for drinks',
@@ -218,6 +222,7 @@ nargs='+')
     help_parser = commands.add_parser('help', help='Show this help.')
     help_parser.add_argument('subject', type=str, nargs='*', help='The command to show help for')
     args = parser.parse_args()
+    interactive = not args.noninteractive
 
     for arg in args.__dict__:
         if(arg.startswith("sub_")):
