@@ -296,9 +296,13 @@ nargs='+')
             formatter([get("/users/" + cfg['user'])])
     elif args.command == 'history':
         if args.all:
-            formatter(get("/orders"))
+            orderlist=get("/orders")
+            orderlist.reverse()
+            formatter(orderlist)
         else:
-            formatter(get("/orders/" + cfg['user']))
+            orderlist=get("/orders/" + cfg['user'])
+            orderlist.reverse()
+            formatter(orderlist)
     elif args.command == 'users':
         formatter(get_users())
     elif args.command == 'refresh_token':
