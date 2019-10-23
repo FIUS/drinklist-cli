@@ -145,6 +145,7 @@ if __name__ == '__main__':
     parent_parser.add_argument('-sort-by', type=str, default=None, help='Sort the output by the given column (if possible)')
     parent_parser.add_argument('-columns', type=str, nargs='+', default=None, help='The columns to show (if applicable)')
     parent_parser.add_argument('-sort-descending', action='store_true', help='Sort items descending')
+    parent_parser.add_argument('-sort-ascending', action='store_true', help='Sort items ascending')
     parent_parser.add_argument('-b', dest='noninteractive', action='store_true', help="Noninteractive mode. Will not ask the user anything.")
 
     cfg = parameter_store.ParameterStore(
@@ -243,11 +244,23 @@ nargs='+')
                 ppformat.format_obj_table(x, args.columns))
         else:
             def formatter(x): return print(pp(x))
-    if args.sort_by is not None:
+
+    sort_descending = False
+    sort_by = args.sort_by
+    if args.command == 'history' and sort_by is None:
+            sort_by = 'timestamp'
+    if args.sort_descending and args.sort_ascending:
+        print("Can't sort ascending and descending")
+        exit(1)
+    elif args.sort_ascending:
+        sort_descending = False
+    elif args.sort_descending:
+        sort_descending = True
+    if sort_by is not None:
         inner_formatter = formatter
 
         def real_formatter(x):
-            x.sort(key=lambda y: y[args.sort_by], reverse=args.sort_descending)
+            x.sort(key=lambda y: y[sort_by], reverse=sort_descending)
             return inner_formatter(x)
         formatter = real_formatter
 
