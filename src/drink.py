@@ -157,9 +157,12 @@ if __name__ == '__main__':
         [pathlib.Path(appdirs.user_cache_dir("drinklist_cli", "FIUS")).joinpath("cache.json")],
         "cache_file",
         "The cache file to use")
+    def store_pw_pred():
+        return y_or_n_pred("Store the password in plaintext in the config file")
     cfg.add_parameter('url', lambda: "https://fius.informatik.uni-stuttgart.de/drinklist/api",
                       help='The API url of the drinklist', parameter='--url')
     cfg.add_parameter('pw', lambda: getpass.getpass(),
+                      store_if=store_pw_pred,
                       help='The drinklist password')
     cfg.add_parameter('user', lambda: (input("Username: ") if interactive else sys.exit(1)),
                       help='Your drinklist username')
