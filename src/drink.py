@@ -21,6 +21,7 @@ import parameter_store
 from ppformat import pp
 import ppformat
 import sys
+import subprocess
 import levenshtein as LD
 import copy
 import appdirs
@@ -157,11 +158,16 @@ if __name__ == '__main__':
         [pathlib.Path(appdirs.user_cache_dir("drinklist_cli", "FIUS")).joinpath("cache.json")],
         "cache_file",
         "The cache file to use")
+    def get_pw():
+        if cfg['password_command'] is not None:
+            return subprocess.check_output(cfg['password_command'], shell=True).decode("utf-8").splitlines()[0]
+        else:
+            return getpass.getpass()
     def store_pw_pred():
-        return y_or_n_pred("Store the password in plaintext in the config file")
+        return (cfg['password_command'] is None) and y_or_n_pred("Store the password in plaintext in the config file")
     cfg.add_parameter('url', lambda: "https://fius.informatik.uni-stuttgart.de/drinklist/api",
                       help='The API url of the drinklist', parameter='--url')
-    cfg.add_parameter('pw', lambda: getpass.getpass(),
+    cfg.add_parameter('pw', get_pw,
                       store_if=store_pw_pred,
                       help='The drinklist password')
     cfg.add_parameter('user', lambda: (input("Username: ") if interactive else sys.exit(1)),
@@ -169,6 +175,8 @@ if __name__ == '__main__':
     cfg.add_parameter('aliases', lambda: {},
                       help='The aliases defined for drinks',
                       non_cmd=True)
+    cfg.add_parameter('password_command', lambda: None,
+                      help='The command to run to get the drinklist password')
     cache.add_parameter('token', lambda: get_login_token(),
                         help='The login token to use.')
     cfg.init_argparse_parser(parent_parser)
