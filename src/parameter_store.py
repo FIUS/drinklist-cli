@@ -70,7 +70,7 @@ class ParameterStore(object):
             self.tmp_values.pop(name)
 
     def add_parameter(self, name, initializer, type=str, parameter=None,
-                      help="", non_cmd=False):
+                      help="", non_cmd=False, store_if=lambda: True):
         """Adds the given parameter.
 
         Parameters:
@@ -84,7 +84,8 @@ class ParameterStore(object):
         if parameter is None:
             parameter = '-{}'.format(name)
         self.params[name] = {'name': name, 'type': type, 'parameter': parameter, 'help':help,
-                             'initializer': initializer, 'non_cmd': non_cmd}
+                             'initializer': initializer, 'non_cmd': non_cmd,
+                             'store_if': store_if}
 
     def init_argparse_parser(self, parser):
         """Add cmdline parameters to argparse parser
@@ -131,10 +132,18 @@ class ParameterStore(object):
         elif key in self.values and self.values[key] is not None:
             return self.values[key]
         else:
-            self.values[key] = self.params[key]['initializer']()
-            self.dump()
-            return self.values[key]
+            val = self.params[key]['initializer']()
+            if self.params[key]['store_if']():
+                self.values[key] = val
+                self.dump()
+                return self.values[key]
+            else:
+                self.tmp_values[key] = val
+                return self.tmp_values[key]
 
     def __setitem__(self, key, value):
-        self.values[key] = value
-        self.dump()
+        if self.params[key]['store_if']():
+            self.values[key] = value
+            self.dump()
+        else:
+            self.tmp_values[key] = value
