@@ -38,6 +38,7 @@ install: packages/drinklist
 	cp ./src/zsh_completion_helpers.zsh $(DESTDIR)/usr/share/zsh/site-functions/_drinklist_completion_helpers
 	cp ./src/zsh_completion_drinklist.zsh $(DESTDIR)/usr/share/zsh/site-functions/_drinklist
 	cp ./src/zsh_completion_drink.zsh $(DESTDIR)/usr/share/zsh/site-functions/_drink
+	mkdir -p $(DESTDIR)/usr/share/doc/drinklist-cli
 	cp ./LICENSE $(DESTDIR)/usr/share/doc/drinklist-cli/LICENSE
 
 packages/default.nix: package_templates/default.nix
