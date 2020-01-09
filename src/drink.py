@@ -339,12 +339,17 @@ nargs='+')
         else:
             alias_parser.print_help()
     elif args.command == 'license':
-        for filename in ["./LICENSE", "./COPYING"]:
-            if pathlib.Path(filename).exists():
+        root = pathlib.Path(__file__).absolute().parent;
+        for filename in [
+                pathlib.Path("/usr/share/doc/drinklist-cli/LICENSE"),
+                root.joinpath("LICENSE"),
+                root.joinpath("COPYING")
+                ]:
+            if filename.exists():
                 with open(filename) as file:
                     for line in file.readlines():
                         print(line, end='')
-                break
+                sys.exit(0)
         print("License file missing. Downloading from gnu.org...")
         r = requests.get("https://www.gnu.org/licenses/gpl-3.0.txt")
         if r.ok:
