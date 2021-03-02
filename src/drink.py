@@ -17,15 +17,15 @@ import requests
 import json
 import getpass
 import pathlib
-import parameter_store
-from ppformat import pp
-import ppformat
+from . import parameter_store
+from .ppformat import pp
+from . import ppformat
 import sys
 import subprocess
-import levenshtein as LD
+from . import levenshtein as LD
 import copy
 import appdirs
-from utils import y_or_n_pred, find_minimizing_with_rating
+from .utils import y_or_n_pred, find_minimizing_with_rating
 
 cfg = None
 cache = None
