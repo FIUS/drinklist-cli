@@ -1,5 +1,6 @@
 { pkgs ? import <nixpkgs> {}
 , stdenvNoCC ? pkgs.stdenvNoCC
+, lib ? import <nixpkgs/lib>
 , ...
 }:
 with pkgs;
@@ -17,7 +18,7 @@ stdenvNoCC.mkDerivation rec {
    meta = {
      homepage = https://github.com/FIUS/drinklist-cli;
      description = "A CLI for the FIUS drinklsit";
-     license = stdenv.lib.licenses.gpl3;
+     license = lib.licenses.gpl3;
    };
 
    src = fetchFromGitHub {

@@ -11,7 +11,7 @@ ARCH_PACKAGE_NAME=packages/drinklist-cli-$(GIT_REV)-1-any.pkg.tar.gz
 
 .PHONY: clean all arch-package deb
 
-all: packages/drinklist packages/PKGBUILD $(ARCH_PACKAGE_NAME) $(DEB_PACKAGE_NAME).deb packages/default.nix
+all: packages/drinklist packages/PKGBUILD $(DEB_PACKAGE_NAME).deb packages/default.nix
 
 clean:
 	rm -rf packages
@@ -55,7 +55,7 @@ packages/PKGBUILD: package_templates/PKGBUILD.template $(SRC_FILES)
 
 $(ARCH_PACKAGE_NAME): packages/PKGBUILD # ugly since downloading source from github but works TODO
 	curl -L "$(TARBALL_URL)" > ./packages/$(GIT_REV).tar.gz # manually download tarball since this fails on non-archlinux
-	cd packages && makepkg -d
+	cd packages && makepkg --config /dev/null -d
 	rm -rf packages/src
 	rm -rf packages/pkg
 	rm packages/$(GIT_REV).tar.gz
