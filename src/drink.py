@@ -47,7 +47,7 @@ def refresh_token():
         refresh_token()
         return
     if not r.ok:
-        print("Failed to get token: " + str(response.status_code) + ": " + r.text, file=sys.stderr)
+        print("Failed to get token: " + str(r.status_code) + ": " + r.text, file=sys.stderr)
         sys.exit(1)
     json_result = json.loads(r.text)
     cache['token'] = json_result[u'token']
