@@ -40,16 +40,16 @@ def get_login_token():
 def refresh_token():
     """Fetch a new login token"""
     global cfg, cache
-    response = requests.post(cfg['url'] + "/login", data={'password': cfg['pw']})
-    if response.status_code == 403:
+    r = requests.post(cfg['url'] + "/login", data={'password': cfg['pw']})
+    if r.status_code == 403:
         print("Failed to get login token: wrong password.", file=sys.stderr)
         cfg.reset_parameter('pw')
         refresh_token()
         return
-    if not response.ok:
+    if not r.ok:
         print("Failed to get token: " + str(response.status_code) + ": " + r.text, file=sys.stderr)
         sys.exit(1)
-    json_result = json.loads(response.text)
+    json_result = json.loads(r.text)
     cache['token'] = json_result[u'token']
 
 def get(suburl, retry=True):
