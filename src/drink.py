@@ -110,8 +110,10 @@ def order_drink(drink, retry=True):
     global cfg, cache, interactive
     drink = expand_alias(drink)
     r = requests.post(cfg["url"] + "/orders",
-                      headers={'X-Auth-Token': cache['token']},
-                      params={'user': cfg['user'], 'beverage': drink})
+                      headers={'X-Auth-Token': cache['token'],
+                               #'Sec-GPC': "1"
+                               },
+                      json={'user': cfg['user'], 'beverage': drink})
     if r.status_code == 403 and retry:
         refresh_token()
         return order_drink(drink, retry=False)
@@ -137,7 +139,7 @@ def order_drink(drink, retry=True):
         else:
             print("Unknown beverage")
     else:
-        print(r.text)
+        print("Ordered {} for {}".format(drink, cfg["user"]))
 
 if __name__ == '__main__':
     import argparse
