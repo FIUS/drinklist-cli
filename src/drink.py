@@ -119,7 +119,7 @@ def order_drink(drink, retry=True):
         return order_drink(drink, retry=False)
 
     if not r.ok:
-        if not r.text == "Unknown beverage":
+        if not r.text == "Not Found" and r.status_code == 404:
             print(str(r.status_code) + ": " + r.text, file=sys.stderr)
             sys.exit(1)
 
